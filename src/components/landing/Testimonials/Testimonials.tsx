@@ -1,4 +1,3 @@
-import React from 'react';
 import { Container, Title, Text, Button, Group, Stack, Badge } from '@mantine/core';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';

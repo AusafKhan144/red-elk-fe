@@ -1,5 +1,4 @@
-import React from 'react';
-import { Container, Title, Text, Button, Group, Badge, Stack } from '@mantine/core';
+import { Container, Title, Text, Button, Group, Badge, } from '@mantine/core';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Play, ArrowRight, Star, Users, Award } from 'lucide-react';
