@@ -1,5 +1,4 @@
-import React from 'react';
-import { Container, Title, SimpleGrid, Card, Text, Group, ThemeIcon, Stack } from '@mantine/core';
+import { Container, Title, SimpleGrid, Card, Text, ThemeIcon, Stack } from '@mantine/core';
 import { motion } from 'framer-motion';
 import { 
   Target, 
