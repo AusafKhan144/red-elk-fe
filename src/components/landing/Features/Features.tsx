@@ -1,131 +1,117 @@
-import { Container, Title, SimpleGrid, Card, Text, ThemeIcon, Stack } from '@mantine/core';
-import { motion } from 'framer-motion';
-import { 
-  Target, 
-  TrendingUp, 
-  Users, 
-  Shield, 
-  Zap, 
-  BarChart3,
-  CheckCircle,
-  Globe
-} from 'lucide-react';
+import { motion } from "framer-motion";
+import { Target, TrendingUp, BarChart3, Users, Shield, Zap, CheckCircle, Globe } from "lucide-react";
 
 const features = [
   {
     icon: Target,
-    title: 'AI Readiness Assessment',
-    description: 'Comprehensive evaluation of your organization\'s AI maturity across multiple dimensions.',
-    color: 'blue',
+    title: "AI Readiness Assessment",
+    desc: "Comprehensive evaluation of your organisation's AI maturity across multiple dimensions.",
+    accent: "from-red-50 to-orange-50",
+    iconBg: "bg-red-100",
+    iconColor: "text-elk-red",
   },
   {
     icon: TrendingUp,
-    title: 'Real-time Progress Tracking',
-    description: 'Monitor your improvement journey with detailed analytics and milestone tracking.',
-    color: 'green',
+    title: "Progress Tracking",
+    desc: "Monitor your improvement with detailed analytics and milestone tracking over time.",
+    accent: "from-indigo-50 to-purple-50",
+    iconBg: "bg-indigo-100",
+    iconColor: "text-indigo-600",
   },
   {
     icon: BarChart3,
-    title: 'Advanced Analytics',
-    description: 'Deep insights and benchmarking against industry standards and best practices.',
-    color: 'purple',
+    title: "Radar Reports",
+    desc: "Visual radar charts and dimension breakdowns give you a clear picture of strengths.",
+    accent: "from-sky-50 to-blue-50",
+    iconBg: "bg-sky-100",
+    iconColor: "text-sky-600",
   },
   {
     icon: Users,
-    title: 'Team Collaboration',
-    description: 'Invite team members and track collective progress across your organization.',
-    color: 'orange',
+    title: "Role Management",
+    desc: "Admin controls to manage users, assign tiers, and oversee your team's assessments.",
+    accent: "from-violet-50 to-fuchsia-50",
+    iconBg: "bg-violet-100",
+    iconColor: "text-violet-600",
   },
   {
     icon: Shield,
-    title: 'Enterprise Security',
-    description: 'Bank-level encryption and compliance with SOC2, GDPR, and industry standards.',
-    color: 'red',
+    title: "Secure & Compliant",
+    desc: "Supabase JWT auth, encrypted transport, enterprise-ready from day one.",
+    accent: "from-green-50 to-emerald-50",
+    iconBg: "bg-green-100",
+    iconColor: "text-green-600",
   },
   {
     icon: Zap,
-    title: 'Instant Reports',
-    description: 'Generate comprehensive PDF reports and recommendations in seconds.',
-    color: 'yellow',
+    title: "Instant PDF Export",
+    desc: "Downloadable PDF reports generated automatically after each completed assessment.",
+    accent: "from-yellow-50 to-amber-50",
+    iconBg: "bg-yellow-100",
+    iconColor: "text-yellow-600",
   },
   {
     icon: CheckCircle,
-    title: 'Action Planning',
-    description: 'Get personalized roadmaps and next steps based on your assessment results.',
-    color: 'teal',
+    title: "Actionable Roadmap",
+    desc: "Personalised recommendations and next steps based on your exact scores.",
+    accent: "from-teal-50 to-cyan-50",
+    iconBg: "bg-teal-100",
+    iconColor: "text-teal-600",
   },
   {
     icon: Globe,
-    title: 'Global Benchmarks',
-    description: 'Compare your progress against global industry leaders and peers.',
-    color: 'indigo',
+    title: "Tiered Access",
+    desc: "Nascent to Leading tiers unlock progressively deeper question sets and insights.",
+    accent: "from-rose-50 to-pink-50",
+    iconBg: "bg-rose-100",
+    iconColor: "text-rose-600",
   },
 ];
 
-const Features = () => {
+export default function Features() {
   return (
-    <section className="py-24 bg-gradient-to-b from-white to-gray-50">
-      <Container size="xl">
+    <section id="features" className="py-28 bg-white">
+      <div className="max-w-7xl mx-auto px-6">
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="text-center mb-16"
+          className="text-center mb-18"
         >
-          <Title 
-            order={2} 
-            className="text-4xl md:text-5xl font-bold mb-4 gradient-text"
-          >
-            Everything You Need to Succeed
-          </Title>
-          <Text size="xl" className="text-gray-600 max-w-3xl mx-auto">
-            Comprehensive AI assessment platform with enterprise-grade features 
-            designed to accelerate your digital transformation journey.
-          </Text>
+          <span className="inline-block text-xs font-bold uppercase tracking-widest text-elk-red bg-red-50 border border-red-100 px-3 py-1 rounded-full mb-4">
+            Platform Features
+          </span>
+          <h2 className="text-4xl font-extrabold text-gray-900 mb-5 leading-tight">
+            Everything You Need to{" "}
+            <span className="text-elk-red">Succeed</span>
+          </h2>
+          <p className="text-lg text-gray-500 max-w-2xl mx-auto leading-relaxed">
+            A full-stack AI maturity platform — from assessment to PDF report — designed for
+            enterprise teams who want real, actionable insights.
+          </p>
         </motion.div>
 
-        <SimpleGrid cols={{ base: 1, md: 2, lg: 4 }} spacing="xl">
-          {features.map((feature, index) => (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+          {features.map(({ icon: Icon, title, desc, accent, iconBg, iconColor }, i) => (
             <motion.div
-              key={index}
-              initial={{ opacity: 0, y: 30 }}
+              key={title}
+              initial={{ opacity: 0, y: 28 }}
               whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: index * 0.1 }}
-              whileHover={{ y: -5 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: i * 0.06 }}
+              whileHover={{ y: -5, transition: { duration: 0.2 } }}
+              className={`relative bg-gradient-to-br ${accent} border border-white rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow`}
             >
-              <Card 
-                shadow="lg" 
-                padding="xl" 
-                radius="xl" 
-                withBorder
-                className="h-full bg-white/80 backdrop-blur-sm border-gray-200/50 hover:shadow-2xl transition-all duration-300"
-              >
-                <Stack gap="md">
-                  <ThemeIcon 
-                    size={60} 
-                    radius="xl" 
-                    variant="light" 
-                    color={feature.color}
-                    className="mb-2"
-                  >
-                    <feature.icon size={32} />
-                  </ThemeIcon>
-                  
-                  <Title order={4} className="font-semibold text-gray-900">
-                    {feature.title}
-                  </Title>
-                  
-                  <Text size="sm" className="text-gray-600 leading-relaxed">
-                    {feature.description}
-                  </Text>
-                </Stack>
-              </Card>
+              <div className={`w-11 h-11 rounded-xl ${iconBg} flex items-center justify-center mb-4`}>
+                <Icon size={21} className={iconColor} />
+              </div>
+              <h3 className="text-sm font-bold text-gray-900 mb-2 leading-snug">{title}</h3>
+              <p className="text-sm text-gray-500 leading-relaxed">{desc}</p>
             </motion.div>
           ))}
-        </SimpleGrid>
-      </Container>
+        </div>
+      </div>
     </section>
   );
-};
-
-export default Features;
+}

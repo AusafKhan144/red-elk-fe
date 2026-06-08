@@ -1,28 +1,76 @@
-import {Routes, Route} from 'react-router-dom';
-import LandingPage from './pages/LandingPage/LandingPage'
-import LoginPage from './pages/LoginPage/LoginPage';
-import RegisterPage from './pages/RegisterPage/RegisterPage';
-import Dashboard from './pages/Dashboard/Dashboard';
-import AssessmentList from './pages/AssessmentList/AssessmentList';
-import AssessmentView from './pages/AssessmentView/AssessmentView';
-import NotFound from './pages/NotFound/NotFound';
+import { Routes, Route } from "react-router-dom";
+import { AuthProvider } from "./context/AuthContext";
+import ProtectedRoute from "./components/ProtectedRoute";
 
-const App = () => {
-    return (
-        // <Routes>
-        <div className="flex flex-col items-center justify-center h-screen bg-gray-100">
-            <h1 className="text-4xl font-bold text-blue-600">Hello Tailwind 🚀</h1>
-            <p className="mt-4 text-gray-700">Tailwind is working!</p>
-        </div>
-        //   <Route path="/" element={<LandingPage />} />
-        //   <Route path="/login" element={<LoginPage />} />
-        //   <Route path="/register" element={<RegisterPage />} />
-        //   <Route path="/dashboard" element={<Dashboard token="your_token_here" />} />
-        //   <Route path="/assessments" element={<AssessmentList token="your_token_here"/>} />
-        //   <Route path="/assessments/:id" element={<AssessmentView token="your_token_here"/>} />
-        //   <Route path="*" element={<NotFound />} />
-        // </Routes>
-    );
-};
+// Layouts
+import PublicLayout from "./components/layout/PublicLayout";
+import AppLayout from "./components/layout/AppLayout";
 
-export default App;
+// Public pages
+import LandingPage from "./pages/LandingPage/LandingPage";
+import LoginPage from "./pages/LoginPage/LoginPage";
+import ResetPassword from "./pages/ResetPassword/ResetPassword";
+
+// Authenticated pages
+import Dashboard from "./pages/Dashboard/Dashboard";
+import AssessmentIntro from "./pages/AssessmentIntro/AssessmentIntro";
+import Quiz from "./pages/Quiz/Quiz";
+import Report from "./pages/Report/Report";
+import Sessions from "./pages/Sessions/Sessions";
+
+// Admin pages
+import AdminAnalytics from "./pages/admin/AdminAnalytics/AdminAnalytics";
+import AdminSessions from "./pages/admin/AdminSessions/AdminSessions";
+import AdminUsers from "./pages/admin/AdminUsers/AdminUsers";
+import AdminUserDetail from "./pages/admin/AdminUserDetail/AdminUserDetail";
+import AdminImport from "./pages/admin/AdminImport/AdminImport";
+
+// 404
+import NotFound from "./pages/NotFound/NotFound";
+
+export default function App() {
+  return (
+    <AuthProvider>
+      <Routes>
+        {/* Public routes */}
+        <Route element={<PublicLayout />}>
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
+        </Route>
+
+        {/* Authenticated routes */}
+        <Route
+          element={
+            <ProtectedRoute>
+              <AppLayout />
+            </ProtectedRoute>
+          }
+        >
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/assessments/:slug" element={<AssessmentIntro />} />
+          <Route path="/sessions/:sessionId/quiz" element={<Quiz />} />
+          <Route path="/sessions/:sessionId/report" element={<Report />} />
+          <Route path="/sessions" element={<Sessions />} />
+        </Route>
+
+        {/* Admin routes */}
+        <Route
+          element={
+            <ProtectedRoute adminOnly>
+              <AppLayout />
+            </ProtectedRoute>
+          }
+        >
+          <Route path="/admin" element={<AdminAnalytics />} />
+          <Route path="/admin/sessions" element={<AdminSessions />} />
+          <Route path="/admin/users" element={<AdminUsers />} />
+          <Route path="/admin/users/:userId" element={<AdminUserDetail />} />
+          <Route path="/admin/import" element={<AdminImport />} />
+        </Route>
+
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </AuthProvider>
+  );
+}

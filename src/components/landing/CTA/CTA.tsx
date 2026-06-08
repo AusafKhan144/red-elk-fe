@@ -1,128 +1,84 @@
-import { Container, Title, Text, Button, Group, Stack, Badge } from '@mantine/core';
-import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { ArrowRight, CheckCircle, Clock, Users } from 'lucide-react';
+import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
+import { ArrowRight, CheckCircle, Clock, BarChart2 } from "lucide-react";
 
-const CTA = () => {
+const perks = [
+  { icon: CheckCircle, text: "Free to start" },
+  { icon: Clock, text: "5-minute setup" },
+  { icon: BarChart2, text: "Instant scored report" },
+];
+
+export default function CTA() {
+  const navigate = useNavigate();
+
   return (
-    <section className="relative py-24 overflow-hidden">
-      {/* Background with gradient */}
-      <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600" />
-      
-      {/* Animated background elements */}
-      <div className="absolute inset-0">
+    <section className="relative py-28 overflow-hidden bg-elk-maroon">
+      {/* Background decoration */}
+      <div className="absolute inset-0 pointer-events-none">
         <motion.div
-          className="absolute top-0 left-1/4 w-96 h-96 bg-white/10 rounded-full blur-3xl"
-          animate={{ 
-            scale: [1, 1.2, 1],
-            opacity: [0.3, 0.6, 0.3]
-          }}
-          transition={{ duration: 8, repeat: Infinity }}
+          className="absolute top-0 left-1/2 -translate-x-1/2 w-[900px] h-[400px] rounded-full blur-3xl opacity-25"
+          style={{ background: "radial-gradient(ellipse, #C0392B 0%, transparent 70%)" }}
+          animate={{ opacity: [0.2, 0.35, 0.2] }}
+          transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
         />
-        <motion.div
-          className="absolute bottom-0 right-1/4 w-80 h-80 bg-white/5 rounded-full blur-3xl"
-          animate={{ 
-            scale: [1, 0.8, 1],
-            opacity: [0.2, 0.5, 0.2]
+        <div
+          className="absolute inset-0 opacity-[0.03]"
+          style={{
+            backgroundImage:
+              "linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px)",
+            backgroundSize: "64px 64px",
           }}
-          transition={{ duration: 10, repeat: Infinity }}
         />
       </div>
 
-      <Container size="xl" className="relative z-10 text-center text-white">
+      <div className="relative max-w-4xl mx-auto px-6 text-center">
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
         >
-          <Stack gap="xl" align="center">
-            {/* Badge */}
-            <Badge 
-              size="lg" 
-              variant="light" 
-              color="white" 
-              className="glass-card text-white border-white/30"
+          <span className="inline-block text-xs font-bold uppercase tracking-widest text-elk-rose bg-white/8 border border-white/15 px-3 py-1 rounded-full mb-5">
+            Get Started Today
+          </span>
+
+          <h2 className="text-4xl md:text-5xl font-extrabold text-white mb-5 leading-tight">
+            Start your AI assessment{" "}
+            <span className="text-elk-rose" style={{ textShadow: "0 0 30px rgba(218,143,147,0.3)" }}>
+              today
+            </span>
+          </h2>
+
+          <p className="text-lg text-white/60 mb-10 max-w-2xl mx-auto leading-relaxed">
+            Join organisations using Red Elk to benchmark their AI capabilities,
+            identify gaps, and build a credible roadmap forward.
+          </p>
+
+          <div className="flex flex-wrap justify-center gap-6 mb-10">
+            {perks.map(({ icon: Icon, text }) => (
+              <div key={text} className="flex items-center gap-2 text-white/65 text-sm">
+                <Icon size={15} className="text-elk-rose" />
+                {text}
+              </div>
+            ))}
+          </div>
+
+          <div className="flex flex-wrap justify-center gap-4">
+            <button
+              onClick={() => navigate("/login?mode=register")}
+              className="flex items-center gap-2 px-8 py-4 bg-white text-elk-maroon font-bold rounded-xl hover:bg-gray-50 transition-all shadow-xl hover:shadow-2xl hover:-translate-y-0.5 active:translate-y-0"
             >
-              🚀 Ready to Transform Your AI Journey?
-            </Badge>
-
-            {/* Headline */}
-            <Title 
-              order={2} 
-              className="text-4xl md:text-6xl font-bold mb-4"
+              Get Started Free <ArrowRight size={18} />
+            </button>
+            <button
+              onClick={() => navigate("/login")}
+              className="px-8 py-4 border-2 border-white/25 hover:border-white/50 text-white font-semibold rounded-xl hover:bg-white/8 transition-all"
             >
-              Start Your AI Assessment
-              <br />
-              <span className="text-yellow-300">Today</span>
-            </Title>
-
-            {/* Subheadline */}
-            <Text 
-              size="xl" 
-              className="max-w-3xl mx-auto opacity-90 leading-relaxed"
-            >
-              Join thousands of organizations who have accelerated their AI transformation. 
-              Get started with our comprehensive assessment in under 5 minutes.
-            </Text>
-
-            {/* Benefits */}
-            <Group justify="center" gap="xl" className="my-8">
-              <Group gap="xs">
-                <CheckCircle size={20} className="text-green-300" />
-                <Text>Free to start</Text>
-              </Group>
-              <Group gap="xs">
-                <Clock size={20} className="text-blue-300" />
-                <Text>5-minute setup</Text>
-              </Group>
-              <Group gap="xs">
-                <Users size={20} className="text-purple-300" />
-                <Text>10,000+ users</Text>
-              </Group>
-            </Group>
-
-            {/* CTA Buttons */}
-            <Group justify="center" gap="md">
-              <motion.div
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <Button
-                  component={Link}
-                  to="/register"
-                  size="xl"
-                  className="bg-white text-indigo-600 hover:bg-gray-50 font-bold px-10 py-4 rounded-full shadow-2xl"
-                  rightSection={<ArrowRight size={20} />}
-                >
-                  Get Started Free
-                </Button>
-              </motion.div>
-              
-              <motion.div
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <Button
-                  component={Link}
-                  to="/login"
-                  variant="outline"
-                  size="xl"
-                  className="border-2 border-white text-white hover:bg-white hover:text-indigo-600 font-semibold px-8 py-4 rounded-full"
-                >
-                  Sign In
-                </Button>
-              </motion.div>
-            </Group>
-
-            {/* Trust indicators */}
-            <Text size="sm" className="opacity-75 mt-6">
-              No credit card required • Enterprise security • GDPR compliant
-            </Text>
-          </Stack>
+              Sign In
+            </button>
+          </div>
         </motion.div>
-      </Container>
+      </div>
     </section>
   );
-};
-
-export default CTA;
+}

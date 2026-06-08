@@ -1,1 +1,42 @@
 @import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+
+/* ─── Design tokens ──────────────────────────────────────────────── */
+@theme {
+  --color-elk-red: #C0392B;
+  --color-elk-maroon: #5b1013;
+  --color-elk-rose: #da8f93;
+  --color-elk-canvas: #f4f6f8;
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+}
+
+/* ─── Base ───────────────────────────────────────────────────────── */
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    background-color: var(--color-elk-canvas);
+    font-family: var(--font-sans);
+    color: #111827;
+  }
+
+  ::selection {
+    background-color: rgb(192 57 43 / 0.15);
+    color: #111827;
+  }
+}
+
+/* ─── Custom utilities ───────────────────────────────────────────── */
+@utility glass-card {
+  background: rgba(255, 255, 255, 0.07);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 1.25rem;
+  padding: 1.5rem;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}

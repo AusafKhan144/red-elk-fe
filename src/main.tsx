@@ -1,30 +1,31 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import {MantineProvider} from "@mantine/core";
-import {BrowserRouter} from "react-router-dom";
-import {ConfigProvider} from "antd";
-
-import "@ant-design/v5-patch-for-react-19";
-import "antd/dist/reset.css"; // 👈 AntD reset (before your own styles)
-import "./index.css";         // 👈 Tailwind
-import "./styles/global.css"; // 👈 Your overrides
-
+import { BrowserRouter } from "react-router-dom";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { Toaster } from "sonner";
+import "./index.css";
+import "./styles/global.css";
 import App from "./App.tsx";
+import ErrorBoundary from "./components/ErrorBoundary.tsx";
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 1,
+      staleTime: 30_000,
+    },
+  },
+});
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
-    <React.StrictMode>
-        <MantineProvider>
-            <ConfigProvider
-                theme={{
-                    token: {
-                        colorPrimary: "#2563eb", // Tailwind blue-600
-                    },
-                }}
-            >
-                <BrowserRouter>
-                    <App/>
-                </BrowserRouter>
-            </ConfigProvider>
-        </MantineProvider>
-    </React.StrictMode>
+  <React.StrictMode>
+    <ErrorBoundary>
+      <QueryClientProvider client={queryClient}>
+        <BrowserRouter>
+          <App />
+        </BrowserRouter>
+        <Toaster position="top-right" richColors closeButton />
+      </QueryClientProvider>
+    </ErrorBoundary>
+  </React.StrictMode>
 );

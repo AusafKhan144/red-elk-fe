@@ -1,156 +1,158 @@
-import { Container, Title, Text, Button, Group, Badge, } from '@mantine/core';
-import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { Play, ArrowRight, Star, Users, Award } from 'lucide-react';
+import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
+import { ArrowRight, CheckCircle, Sparkles } from "lucide-react";
 
-const Hero = () => {
+const badges = ["500+ Assessments Completed", "Enterprise Ready", "AI-Powered Scoring"];
+
+const dimensionData = [
+  { label: "Strategy", score: 82, color: "#C0392B" },
+  { label: "Data", score: 74, color: "#da8f93" },
+  { label: "Technology", score: 79, color: "#C0392B" },
+  { label: "Talent", score: 71, color: "#da8f93" },
+  { label: "Governance", score: 68, color: "#C0392B" },
+];
+
+export default function Hero() {
+  const navigate = useNavigate();
+
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-      {/* Background with gradient and pattern */}
-      <div className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600 hero-pattern" />
-      
-      {/* Animated background elements */}
-      <div className="absolute inset-0">
+    <section className="relative overflow-hidden bg-elk-maroon min-h-[90vh] flex items-center">
+      {/* Background radial glows */}
+      <div className="absolute inset-0 pointer-events-none">
         <motion.div
-          className="absolute top-20 left-10 w-72 h-72 bg-white/10 rounded-full blur-3xl"
-          animate={{ 
-            x: [0, 100, 0], 
-            y: [0, -50, 0],
-            scale: [1, 1.2, 1]
-          }}
-          transition={{ duration: 20, repeat: Infinity }}
+          className="absolute -top-40 -right-40 w-[700px] h-[700px] rounded-full"
+          style={{ background: "radial-gradient(circle, rgba(192,57,43,0.25) 0%, transparent 70%)" }}
+          animate={{ scale: [1, 1.1, 1], opacity: [0.6, 0.8, 0.6] }}
+          transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
         />
         <motion.div
-          className="absolute bottom-20 right-10 w-96 h-96 bg-white/5 rounded-full blur-3xl"
-          animate={{ 
-            x: [0, -100, 0], 
-            y: [0, 50, 0],
-            scale: [1, 0.8, 1]
+          className="absolute -bottom-60 -left-40 w-[600px] h-[600px] rounded-full"
+          style={{ background: "radial-gradient(circle, rgba(218,143,147,0.12) 0%, transparent 70%)" }}
+          animate={{ scale: [1, 1.15, 1] }}
+          transition={{ duration: 14, repeat: Infinity, ease: "easeInOut", delay: 3 }}
+        />
+        {/* Grid overlay */}
+        <div
+          className="absolute inset-0 opacity-[0.04]"
+          style={{
+            backgroundImage:
+              "linear-gradient(rgba(255,255,255,0.4) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.4) 1px, transparent 1px)",
+            backgroundSize: "48px 48px",
           }}
-          transition={{ duration: 25, repeat: Infinity }}
         />
       </div>
 
-      <Container size="xl" className="relative z-10 text-center text-white">
+      <div className="relative max-w-7xl mx-auto px-6 py-24 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center w-full">
+        {/* ── Left copy ── */}
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 32 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
+          transition={{ duration: 0.7, ease: "easeOut" }}
         >
-          {/* Trust indicators */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.2 }}
-            className="mb-8"
-          >
-            <Group justify="center" gap="lg" className="mb-6">
-              <Badge 
-                size="lg" 
-                variant="light" 
-                color="white" 
-                className="glass-card text-white border-white/30"
-                leftSection={<Star size={14} />}
-              >
-                4.9/5 Rating
-              </Badge>
-              <Badge 
-                size="lg" 
-                variant="light" 
-                color="white" 
-                className="glass-card text-white border-white/30"
-                leftSection={<Users size={14} />}
-              >
-                10,000+ Users
-              </Badge>
-              <Badge 
-                size="lg" 
-                variant="light" 
-                color="white" 
-                className="glass-card text-white border-white/30"
-                leftSection={<Award size={14} />}
-              >
-                Industry Leading
-              </Badge>
-            </Group>
-          </motion.div>
-
-          {/* Main headline */}
-          <Title 
-            order={1} 
-            className="text-5xl md:text-7xl font-black mb-6 leading-tight"
-            style={{ textShadow: '0 4px 20px rgba(0,0,0,0.3)' }}
-          >
-            Transform Your
-            <br />
-            <span className="gradient-text bg-gradient-to-r from-yellow-400 to-pink-400">
-              AI Journey
+          <div className="inline-flex items-center gap-2 bg-white/8 border border-white/15 rounded-full px-4 py-1.5 mb-7">
+            <Sparkles size={13} className="text-elk-rose" />
+            <span className="text-elk-rose text-xs font-semibold tracking-wide">
+              AI Maturity Assessment Platform
             </span>
-          </Title>
+          </div>
 
-          {/* Subtitle */}
-          <Text 
-            size="xl" 
-            className="text-xl md:text-2xl mb-8 max-w-3xl mx-auto font-light opacity-90"
-          >
-            Unlock your organization's AI potential with comprehensive assessments, 
-            real-time progress tracking, and actionable insights from industry experts.
-          </Text>
-
-          {/* CTA Buttons */}
-          <Group justify="center" gap="md" className="mb-12">
-            <motion.div
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+          <h1 className="text-5xl lg:text-6xl font-extrabold text-white leading-[1.05] tracking-tight mb-6">
+            AI Maturity,{" "}
+            <span
+              className="text-elk-rose"
+              style={{ textShadow: "0 0 40px rgba(218,143,147,0.35)" }}
             >
-              <Button
-                component={Link}
-                to="/register"
-                size="xl"
-                className="bg-white text-indigo-600 hover:bg-gray-50 font-semibold px-8 py-4 rounded-full shadow-2xl"
-                rightSection={<ArrowRight size={20} />}
-              >
-                Start Free Assessment
-              </Button>
-            </motion.div>
-            
-            <motion.div
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <Button
-                variant="outline"
-                size="xl"
-                className="border-2 border-white text-white hover:bg-white hover:text-indigo-600 font-semibold px-8 py-4 rounded-full"
-                leftSection={<Play size={20} />}
-              >
-                Watch Demo
-              </Button>
-            </motion.div>
-          </Group>
+              Measured.
+            </span>
+          </h1>
 
-          {/* Social proof */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.6 }}
-            className="text-sm opacity-75"
-          >
-            <Text>
-              Trusted by leading companies worldwide • No credit card required • 5-minute setup
-            </Text>
-          </motion.div>
+          <p className="text-lg text-white/65 leading-relaxed mb-9 max-w-lg">
+            Benchmark your organisation&apos;s AI capabilities across every dimension.
+            Get a scored report, radar chart, and a PDF roadmap in minutes.
+          </p>
+
+          <div className="flex flex-wrap gap-4 mb-10">
+            {badges.map((b) => (
+              <div key={b} className="flex items-center gap-1.5 text-white/55 text-sm">
+                <CheckCircle size={14} className="text-elk-rose shrink-0" />
+                {b}
+              </div>
+            ))}
+          </div>
+
+          <div className="flex flex-wrap gap-4">
+            <button
+              onClick={() => navigate("/login?mode=register")}
+              className="flex items-center gap-2 px-7 py-3.5 bg-elk-red hover:bg-red-700 text-white font-bold rounded-xl transition-all shadow-lg shadow-red-900/40 hover:shadow-xl hover:shadow-red-900/50 hover:-translate-y-0.5 active:translate-y-0"
+            >
+              Get Started Free <ArrowRight size={17} />
+            </button>
+            <button
+              onClick={() => document.getElementById("features")?.scrollIntoView({ behavior: "smooth" })}
+              className="flex items-center gap-2 px-7 py-3.5 bg-white/8 hover:bg-white/14 border border-white/20 hover:border-white/35 text-white/90 font-semibold rounded-xl transition-all"
+            >
+              Learn More
+            </button>
+          </div>
         </motion.div>
-      </Container>
 
-      {/* Bottom wave */}
-      <div className="absolute bottom-0 left-0 right-0">
-        <svg viewBox="0 0 1200 120" className="w-full h-16 fill-white">
-          <path d="M0,120 C150,100 350,0 600,20 C850,40 1050,100 1200,80 L1200,120 Z" />
-        </svg>
+        {/* ── Score card mockup ── */}
+        <motion.div
+          initial={{ opacity: 0, x: 48, y: 16 }}
+          animate={{ opacity: 1, x: 0, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.25, ease: "easeOut" }}
+          className="hidden lg:block"
+        >
+          <div className="glass-card max-w-sm ml-auto relative">
+            {/* Card header */}
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <p className="text-white/50 text-xs font-medium mb-0.5">AI Maturity Score</p>
+                <p className="text-white/30 text-xs">Enterprise Assessment · 2026</p>
+              </div>
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-green-500/15 text-green-300 border border-green-500/20">
+                <span className="w-1.5 h-1.5 rounded-full bg-green-400" />
+                Leading
+              </span>
+            </div>
+
+            {/* Score */}
+            <div className="flex items-end gap-3 mb-6">
+              <span className="text-6xl font-extrabold text-white leading-none">78</span>
+              <div className="mb-2">
+                <div className="w-32 bg-white/10 rounded-full h-2.5 mb-1">
+                  <div className="h-2.5 rounded-full bg-elk-rose" style={{ width: "78%" }} />
+                </div>
+                <p className="text-white/35 text-xs">out of 100</p>
+              </div>
+            </div>
+
+            {/* Dimension bars */}
+            <div className="space-y-2.5">
+              {dimensionData.map(({ label, score }) => (
+                <div key={label} className="flex items-center gap-3">
+                  <span className="text-white/50 text-xs w-20 shrink-0">{label}</span>
+                  <div className="flex-1 bg-white/8 rounded-full h-1.5">
+                    <motion.div
+                      className="h-1.5 rounded-full bg-elk-red"
+                      initial={{ width: 0 }}
+                      animate={{ width: `${score}%` }}
+                      transition={{ duration: 1, delay: 0.8, ease: "easeOut" }}
+                    />
+                  </div>
+                  <span className="text-white/40 text-xs w-5 text-right">{score}</span>
+                </div>
+              ))}
+            </div>
+
+            {/* Glow under card */}
+            <div
+              className="absolute -bottom-8 left-1/2 -translate-x-1/2 w-48 h-8 blur-2xl rounded-full opacity-40"
+              style={{ background: "#C0392B" }}
+            />
+          </div>
+        </motion.div>
       </div>
     </section>
   );
-};
-
-export default Hero;
+}
