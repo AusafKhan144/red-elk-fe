@@ -41,7 +41,7 @@ export default function Sidebar({ onClose }: Props) {
   const initials = user?.email ? user.email.slice(0, 2).toUpperCase() : "??";
 
   return (
-    <aside className="fixed top-0 left-0 h-full w-60 bg-elk-maroon flex flex-col z-20 select-none">
+    <aside className="grain fixed top-0 left-0 h-full w-60 bg-elk-maroon flex flex-col z-20 select-none">
       {/* Logo */}
       <div className="px-5 py-5 border-b border-white/10">
         <div className="flex items-center justify-between">
@@ -50,7 +50,7 @@ export default function Sidebar({ onClose }: Props) {
               <img src={logo} alt="Red Elk" className="h-7 w-auto" />
             </div>
             <div>
-              <p className="text-white text-sm font-bold leading-none">Red Elk</p>
+              <p className="text-white text-sm font-bold leading-none" style={{ fontFamily: "var(--font-display)" }}>Red Elk</p>
               <p className="text-white/40 text-xs mt-0.5">AI Assessment</p>
             </div>
           </div>
@@ -80,7 +80,7 @@ export default function Sidebar({ onClose }: Props) {
             className={({ isActive }) =>
               `group flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${
                 isActive
-                  ? "bg-elk-red text-white shadow-md shadow-red-900/40"
+                  ? "bg-elk-red text-white shadow-md shadow-red-900/40 border-l-3 border-white/30"
                   : "text-white/60 hover:bg-white/8 hover:text-white"
               }`
             }
@@ -128,12 +128,19 @@ export default function Sidebar({ onClose }: Props) {
       {/* User footer */}
       <div className="px-3 py-4 border-t border-white/10 space-y-1">
         <div className="flex items-center gap-3 px-3 py-2 rounded-xl">
-          <div className="w-8 h-8 rounded-xl bg-elk-red flex items-center justify-center shrink-0">
+          <div
+            className="w-8 h-8 rounded-full shrink-0 flex items-center justify-center"
+            style={{ background: "linear-gradient(135deg, #C0392B 0%, #5b1013 100%)" }}
+          >
             <span className="text-white text-xs font-bold">{initials}</span>
           </div>
           <div className="min-w-0">
             <p className="text-white/80 text-xs font-medium truncate">{user?.email}</p>
-            <p className="text-white/30 text-xs capitalize">{user?.role ?? "user"}</p>
+            {user?.company ? (
+              <p className="text-white/35 text-xs truncate">{user.company}</p>
+            ) : (
+              <p className="text-white/30 text-xs capitalize">{user?.role ?? "user"}</p>
+            )}
           </div>
         </div>
         <button

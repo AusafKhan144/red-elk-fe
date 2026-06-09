@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import api from "../lib/api";
-import type { AdminAnalytics, AdminSession, AdminUser } from "../types/api";
+import type { AdminAnalytics, AdminSession, AdminUser, SubscriptionTier } from "../types/api";
 
 export function useAdminAnalytics() {
   return useQuery({
@@ -47,6 +47,17 @@ export function useUpdateUserRole() {
   });
 }
 
+export function useUpdateUserTier() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, tier }: { id: string; tier: SubscriptionTier }) => {
+      const { data } = await api.patch(`/admin/users/${id}/tier`, { tier });
+      return data;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["admin", "users"] }),
+  });
+}
+
 export function useAdminUserSessions(userId: string) {
   return useQuery({
     queryKey: ["admin", "users", userId, "sessions"],
@@ -69,4 +80,24 @@ export function useImportAssessment() {
       return data;
     },
   });
+}
+
+export async function exportAdminSessions(): Promise<void> {
+  const response = await api.get("/admin/sessions/export", { responseType: "blob" });
+  const url = URL.createObjectURL(response.data as Blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "sessions.csv";
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+export async function exportAdminUsers(): Promise<void> {
+  const response = await api.get("/admin/users/export", { responseType: "blob" });
+  const url = URL.createObjectURL(response.data as Blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "users.csv";
+  a.click();
+  URL.revokeObjectURL(url);
 }

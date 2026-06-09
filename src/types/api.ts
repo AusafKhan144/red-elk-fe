@@ -1,5 +1,7 @@
 export type SubscriptionTier = "free" | "basic" | "premium";
 export type MaturityLevel = "nascent" | "developing" | "maturing" | "leading";
+/** Alias kept for backwards compatibility — same as MaturityLevel */
+export type TierResult = MaturityLevel;
 
 export interface User {
   id: string;
@@ -8,6 +10,10 @@ export interface User {
   company?: string | null;
   tier: SubscriptionTier;
   created_at: string;
+}
+
+export interface UpdateProfilePayload {
+  company?: string | null;
 }
 
 export interface Assessment {
@@ -23,7 +29,7 @@ export interface Question {
   text: string;
   tier: SubscriptionTier;
   type: "scale" | "boolean" | "multiple_choice" | "text";
-  options?: unknown;
+  options: { choices?: string[] } | null;
   max_score: number;
 }
 
@@ -45,9 +51,17 @@ export interface Session {
   tier_at_time?: SubscriptionTier;
   started_at: string;
   completed_at?: string | null;
+  /** Populated in GET /sessions list; null when returned from POST /sessions/start */
+  assessment_name?: string | null;
+  /** Populated in GET /sessions list; null when returned from POST /sessions/start */
+  assessment_slug?: string | null;
 }
 
-export type TierResult = MaturityLevel;
+export interface AnswerOut {
+  question_id: string;
+  dimension_id: string;
+  answer_value: number;
+}
 
 export interface RadarPoint {
   dimension: string;

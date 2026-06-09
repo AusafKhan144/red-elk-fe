@@ -12,7 +12,7 @@ export default function CTA() {
   const navigate = useNavigate();
 
   return (
-    <section className="relative py-28 overflow-hidden bg-elk-maroon">
+    <section className="grain relative py-28 overflow-hidden bg-elk-maroon">
       {/* Background decoration */}
       <div className="absolute inset-0 pointer-events-none">
         <motion.div
@@ -29,6 +29,11 @@ export default function CTA() {
             backgroundSize: "64px 64px",
           }}
         />
+        {/* Gold accent glow */}
+        <div
+          className="absolute bottom-0 right-1/4 w-64 h-64 rounded-full blur-3xl opacity-15"
+          style={{ background: "#D4A72C" }}
+        />
       </div>
 
       <div className="relative max-w-4xl mx-auto px-6 text-center">
@@ -44,7 +49,14 @@ export default function CTA() {
 
           <h2 className="text-4xl md:text-5xl font-extrabold text-white mb-5 leading-tight">
             Start your AI assessment{" "}
-            <span className="text-elk-rose" style={{ textShadow: "0 0 30px rgba(218,143,147,0.3)" }}>
+            <span
+              style={{
+                fontFamily: "var(--font-display)",
+                fontWeight: 700,
+                color: "#D4A72C",
+                textShadow: "0 0 30px rgba(212,167,44,0.3)",
+              }}
+            >
               today
             </span>
           </h2>
@@ -66,7 +78,7 @@ export default function CTA() {
           <div className="flex flex-wrap justify-center gap-4">
             <button
               onClick={() => navigate("/login?mode=register")}
-              className="flex items-center gap-2 px-8 py-4 bg-white text-elk-maroon font-bold rounded-xl hover:bg-gray-50 transition-all shadow-xl hover:shadow-2xl hover:-translate-y-0.5 active:translate-y-0"
+              className="flex items-center gap-2 px-8 py-4 bg-white text-elk-maroon font-bold rounded-xl transition-all shadow-xl hover:shadow-2xl hover:-translate-y-0.5 active:translate-y-0 hover:ring-4 hover:ring-white/20"
             >
               Get Started Free <ArrowRight size={18} />
             </button>

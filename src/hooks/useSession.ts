@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import api from "../lib/api";
-import type { Session } from "../types/api";
+import type { Session, AnswerOut } from "../types/api";
 
 export function useSessions() {
   return useQuery({
@@ -43,6 +43,28 @@ export function useSubmitSession(sessionId: string) {
   return useMutation({
     mutationFn: async () => {
       const { data } = await api.post(`/sessions/${sessionId}/submit`);
+      return data;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["sessions"] }),
+  });
+}
+
+export function useSessionAnswers(sessionId: string) {
+  return useQuery({
+    queryKey: ["sessions", sessionId, "answers"],
+    queryFn: async () => {
+      const { data } = await api.get<AnswerOut[]>(`/sessions/${sessionId}/answers`);
+      return data;
+    },
+    enabled: !!sessionId,
+  });
+}
+
+export function useAbandonSession(sessionId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async () => {
+      const { data } = await api.patch(`/sessions/${sessionId}/abandon`);
       return data;
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["sessions"] }),

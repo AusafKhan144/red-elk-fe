@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { Search, ChevronLeft, ChevronRight } from "lucide-react";
-import { useAdminSessions } from "../../../hooks/useAdmin";
+import { Search, ChevronLeft, ChevronRight, Download } from "lucide-react";
+import { toast } from "sonner";
+import { useAdminSessions, exportAdminSessions } from "../../../hooks/useAdmin";
 import SubscriptionBadge from "../../../components/SubscriptionBadge";
 import PageWrapper from "../../../components/common/PageWrapper";
 
@@ -8,6 +9,18 @@ export default function AdminSessions() {
   const [page, setPage] = useState(0);
   const { data: sessions, isLoading } = useAdminSessions(page);
   const [search, setSearch] = useState("");
+  const [exporting, setExporting] = useState(false);
+
+  async function handleExport() {
+    setExporting(true);
+    try {
+      await exportAdminSessions();
+    } catch {
+      toast.error("Export failed. Please try again.");
+    } finally {
+      setExporting(false);
+    }
+  }
 
   const filtered = sessions?.filter((s) =>
     s.user_id?.toLowerCase().includes(search.toLowerCase()) ||
@@ -20,19 +33,34 @@ export default function AdminSessions() {
   return (
     <PageWrapper>
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-4 flex-wrap">
         <div>
-          <h1 className="text-2xl font-extrabold text-gray-900">All Sessions</h1>
+          <h1
+            className="text-2xl font-extrabold text-gray-900"
+            style={{ fontFamily: "var(--font-display)" }}
+          >
+            All Sessions
+          </h1>
           <p className="text-sm text-gray-500 mt-0.5">Every assessment session across the platform.</p>
         </div>
-        <div className="relative">
-          <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-          <input
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search by user or assessment ID…"
-            className="pl-9 pr-4 py-2 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-elk-rose w-64"
-          />
+        <div className="flex items-center gap-3">
+          <button
+            onClick={handleExport}
+            disabled={exporting}
+            className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-gray-600 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 hover:border-gray-300 disabled:opacity-50 transition-all"
+          >
+            <Download size={14} />
+            {exporting ? "Exporting…" : "Export CSV"}
+          </button>
+          <div className="relative">
+            <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+            <input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search by user or assessment ID…"
+              className="pl-9 pr-4 py-2 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-elk-rose w-64"
+            />
+          </div>
         </div>
       </div>
 

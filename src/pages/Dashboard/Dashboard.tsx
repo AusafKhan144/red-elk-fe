@@ -5,16 +5,19 @@ import { useAssessments } from "../../hooks/useAssessments";
 import { useSessions } from "../../hooks/useSession";
 import { useAuth } from "../../context/AuthContext";
 import SubscriptionBadge from "../../components/SubscriptionBadge";
+import type { ReactNode } from "react";
+import type { Assessment, Session } from "../../types/api";
 
 export default function Dashboard() {
   const { user } = useAuth();
   const { data: assessments, isLoading: loadingA } = useAssessments();
   const { data: sessions, isLoading: loadingS } = useSessions();
 
-  const completed = sessions?.filter((s) => s.status === "completed") ?? [];
+  const completed: Session[] = sessions?.filter((s: Session) => s.status === "completed") ?? [];
 
-  // Cross-reference assessment names from the assessments list
-  const assessmentMap = new Map(assessments?.map((a) => [a.id, a]) ?? []);
+  const assessmentMap = new Map<string, Assessment>(
+    assessments?.map((a: Assessment) => [a.id, a] as [string, Assessment]) ?? []
+  );
 
   const firstName = user?.email?.split("@")[0] ?? "there";
 
@@ -24,8 +27,12 @@ export default function Dashboard() {
       {/* ── Page header ── */}
       <div className="flex items-start justify-between">
         <div>
-          <h1 className="text-2xl font-extrabold text-gray-900 leading-tight">
-            Welcome back, <span className="text-elk-red">{firstName}</span>
+          <h1
+            className="text-2xl font-extrabold text-gray-900 leading-tight"
+            style={{ fontFamily: "var(--font-display)" }}
+          >
+            Welcome back,{" "}
+            <span className="text-elk-red">{firstName}</span>
           </h1>
           <p className="text-gray-500 text-sm mt-1">Here&apos;s your AI maturity overview.</p>
         </div>
@@ -38,30 +45,36 @@ export default function Dashboard() {
 
       {/* ── Stats ── */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <StatCard
-          icon={<ClipboardCheck size={22} className="text-elk-red" />}
+        <GradientStatCard
+          icon={<ClipboardCheck size={22} className="text-white" />}
           label="Sessions completed"
           value={completed.length}
-          accent="red"
+          gradient="linear-gradient(135deg, #5b1013 0%, #C0392B 100%)"
+          iconBg="bg-white/15"
         />
-        <StatCard
-          icon={<BarChart2 size={22} className="text-indigo-500" />}
+        <GradientStatCard
+          icon={<BarChart2 size={22} className="text-white" />}
           label="Assessments available"
           value={assessments?.length ?? "—"}
-          accent="indigo"
+          gradient="linear-gradient(135deg, #1A1D2E 0%, #0E0F1A 100%)"
+          iconBg="bg-white/15"
         />
-        <StatCard
+        <TierStatCard
           icon={<Award size={22} className="text-amber-500" />}
           label="Current tier"
           value={user?.tier ? <SubscriptionBadge tier={user.tier} /> : "—"}
-          accent="amber"
         />
       </div>
 
       {/* ── Assessments ── */}
       <div>
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-bold text-gray-900">Available Assessments</h2>
+          <h2
+            className="text-lg font-bold text-gray-900"
+            style={{ fontFamily: "var(--font-display)" }}
+          >
+            Available Assessments
+          </h2>
         </div>
 
         {loadingA ? (
@@ -73,10 +86,15 @@ export default function Dashboard() {
             {assessments.map((a) => (
               <div
                 key={a.id}
-                className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 flex flex-col hover:shadow-md hover:border-gray-200 transition-all"
+                className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden hover:shadow-md hover:border-gray-200 transition-all flex flex-col"
               >
-                <div className="flex items-start justify-between mb-3">
-                  <div className="flex items-center gap-2">
+                {/* Top accent bar */}
+                <div
+                  className="h-1"
+                  style={{ background: "linear-gradient(90deg, #C0392B, #da8f93)" }}
+                />
+                <div className="p-6 flex flex-col flex-1">
+                  <div className="flex items-center gap-2 mb-3">
                     <div className="w-8 h-8 rounded-lg bg-red-50 flex items-center justify-center">
                       <Layers size={15} className="text-elk-red" />
                     </div>
@@ -84,18 +102,24 @@ export default function Dashboard() {
                       v{a.version}
                     </span>
                   </div>
+                  <h3
+                    className="text-base font-bold text-gray-900 mb-2 leading-snug"
+                    style={{ fontFamily: "var(--font-display)" }}
+                  >
+                    {a.name}
+                  </h3>
+                  {a.description && (
+                    <p className="text-sm text-gray-500 leading-relaxed flex-1">{a.description}</p>
+                  )}
+                  <Link
+                    to={`/assessments/${a.slug}`}
+                    className="mt-5 flex items-center justify-center gap-2 py-2.5 text-white text-sm font-bold rounded-xl transition-all shadow-sm shadow-red-900/20 hover:shadow-md hover:shadow-red-900/30 hover:-translate-y-0.5 active:translate-y-0"
+                    style={{ background: "linear-gradient(135deg, #C0392B 0%, #5b1013 100%)" }}
+                  >
+                    <Plus size={15} />
+                    Start Assessment
+                  </Link>
                 </div>
-                <h3 className="text-base font-bold text-gray-900 mb-2 leading-snug">{a.name}</h3>
-                {a.description && (
-                  <p className="text-sm text-gray-500 leading-relaxed flex-1">{a.description}</p>
-                )}
-                <Link
-                  to={`/assessments/${a.slug}`}
-                  className="mt-5 flex items-center justify-center gap-2 py-2.5 bg-elk-red hover:bg-red-800 text-white text-sm font-bold rounded-xl transition-all shadow-sm shadow-red-900/20 hover:shadow-md hover:shadow-red-900/30 hover:-translate-y-0.5 active:translate-y-0"
-                >
-                  <Plus size={15} />
-                  Start Assessment
-                </Link>
               </div>
             ))}
           </div>
@@ -105,7 +129,12 @@ export default function Dashboard() {
       {/* ── Recent sessions ── */}
       <div>
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-bold text-gray-900">Recent Sessions</h2>
+          <h2
+            className="text-lg font-bold text-gray-900"
+            style={{ fontFamily: "var(--font-display)" }}
+          >
+            Recent Sessions
+          </h2>
           <Link
             to="/sessions"
             className="text-sm font-semibold text-elk-red hover:text-red-800 flex items-center gap-1 transition-colors"
@@ -156,8 +185,8 @@ export default function Dashboard() {
                         {s.tier_at_time ? <SubscriptionBadge tier={s.tier_at_time} /> : "—"}
                       </td>
                       <td className="px-5 py-4">
-                        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-green-50 text-green-700 border border-green-100">
-                          <span className="w-1.5 h-1.5 rounded-full bg-green-400" />
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-teal-50 text-teal-700 border border-teal-100">
+                          <span className="w-1.5 h-1.5 rounded-full bg-teal-400" />
                           Completed
                         </span>
                       </td>
@@ -182,24 +211,58 @@ export default function Dashboard() {
   );
 }
 
-function StatCard({
+function GradientStatCard({
   icon,
   label,
   value,
-  accent,
+  gradient,
+  iconBg,
 }: {
-  icon: React.ReactNode;
+  icon: ReactNode;
   label: string;
-  value: React.ReactNode;
-  accent: "red" | "indigo" | "amber";
+  value: ReactNode;
+  gradient: string;
+  iconBg: string;
 }) {
-  const bg = { red: "bg-red-50", indigo: "bg-indigo-50", amber: "bg-amber-50" }[accent];
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
-      <div className={`w-12 h-12 rounded-xl ${bg} flex items-center justify-center mb-4`}>
+    <div
+      className="rounded-2xl p-6 text-white"
+      style={{ background: gradient }}
+    >
+      <div className={`w-10 h-10 rounded-xl ${iconBg} flex items-center justify-center mb-4`}>
         {icon}
       </div>
-      <div className="text-3xl font-extrabold text-gray-900 leading-none mb-1">{value}</div>
+      <div
+        className="text-3xl font-extrabold text-white leading-none mb-1"
+        style={{ fontFamily: "var(--font-display)" }}
+      >
+        {value}
+      </div>
+      <p className="text-sm text-white/60">{label}</p>
+    </div>
+  );
+}
+
+function TierStatCard({
+  icon,
+  label,
+  value,
+}: {
+  icon: ReactNode;
+  label: string;
+  value: ReactNode;
+}) {
+  return (
+    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 border-l-4 border-l-elk-gold">
+      <div className="w-10 h-10 rounded-xl bg-amber-50 flex items-center justify-center mb-4">
+        {icon}
+      </div>
+      <div
+        className="text-3xl font-extrabold text-gray-900 leading-none mb-1"
+        style={{ fontFamily: "var(--font-display)" }}
+      >
+        {value}
+      </div>
       <p className="text-sm text-gray-500">{label}</p>
     </div>
   );

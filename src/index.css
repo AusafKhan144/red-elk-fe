@@ -1,13 +1,19 @@
 @import "tailwindcss";
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700;800;900&display=swap');
 
 /* ─── Design tokens ──────────────────────────────────────────────── */
 @theme {
-  --color-elk-red: #C0392B;
+  --color-elk-red:    #C0392B;
   --color-elk-maroon: #5b1013;
-  --color-elk-rose: #da8f93;
+  --color-elk-rose:   #da8f93;
   --color-elk-canvas: #f4f6f8;
+  --color-elk-ink:    #0E0F1A;
+  --color-elk-slate:  #1A1D2E;
+  --color-elk-gold:   #D4A72C;
+  --color-elk-teal:   #0D9488;
+  --color-elk-cream:  #FAF9F7;
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  --font-display: 'Space Grotesk', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
 }
 
 /* ─── Base ───────────────────────────────────────────────────────── */
@@ -39,4 +45,30 @@
   border-radius: 1.25rem;
   padding: 1.5rem;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+@utility grain {
+  position: relative;
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E");
+    background-size: 200px 200px;
+    opacity: 0.035;
+    border-radius: inherit;
+  }
+}
+
+@utility gradient-text {
+  background: linear-gradient(135deg, #ffffff 0%, rgba(255,255,255,0.7) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+@utility dot-grid {
+  background-image: radial-gradient(circle, rgba(0,0,0,0.12) 1px, transparent 1px);
+  background-size: 20px 20px;
 }

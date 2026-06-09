@@ -80,7 +80,7 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex">
       {/* ── Left branding panel ── */}
-      <div className="hidden lg:flex lg:w-[45%] bg-elk-maroon flex-col relative overflow-hidden">
+      <div className="grain hidden lg:flex lg:w-[45%] bg-elk-maroon flex-col relative overflow-hidden">
         <div className="absolute -top-40 -left-40 w-96 h-96 rounded-full bg-elk-red opacity-20" />
         <div className="absolute bottom-0 right-0 w-72 h-72 rounded-full bg-elk-rose opacity-10" />
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full border border-white/5" />
@@ -119,7 +119,8 @@ export default function LoginPage() {
       </div>
 
       {/* ── Right form panel ── */}
-      <div className="flex-1 flex items-center justify-center bg-white px-8 py-12 min-h-screen">
+      <div className="flex-1 flex items-center justify-center bg-white px-8 py-12 min-h-screen relative">
+        <div className="dot-grid absolute inset-0 opacity-40 pointer-events-none" />
         <div className="w-full max-w-sm">
           {/* Mobile logo */}
           <div className="lg:hidden flex justify-center mb-8">
@@ -263,7 +264,8 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full py-3 mt-1 bg-elk-red hover:bg-red-800 disabled:opacity-60 disabled:cursor-not-allowed text-white font-bold text-sm rounded-xl transition-all shadow-md shadow-red-900/20 hover:shadow-lg hover:shadow-red-900/30 hover:-translate-y-0.5 active:translate-y-0"
+              className="w-full py-3 mt-1 disabled:opacity-60 disabled:cursor-not-allowed text-white font-bold text-sm rounded-xl transition-all shadow-md shadow-red-900/20 hover:shadow-lg hover:shadow-red-900/30 hover:-translate-y-0.5 active:translate-y-0"
+              style={{ background: "linear-gradient(135deg, #C0392B 0%, #5b1013 100%)" }}
             >
               {isSubmitting
                 ? "Please wait…"

@@ -7,24 +7,27 @@ const steps = [
     icon: ClipboardCheck,
     title: "Take the Assessment",
     desc: "Answer questions across each AI dimension at your own pace. Each answer is saved instantly — no losing progress.",
-    color: "bg-elk-red",
+    iconBg: "bg-elk-red",
     glow: "rgba(192,57,43,0.2)",
+    leftBorder: "border-l-elk-red",
   },
   {
     n: "02",
     icon: Cpu,
     title: "Get Scored",
     desc: "Our backend scores your submission across dimensions and calculates your maturity tier automatically.",
-    color: "bg-indigo-600",
+    iconBg: "bg-indigo-600",
     glow: "rgba(99,102,241,0.2)",
+    leftBorder: "border-l-indigo-500",
   },
   {
     n: "03",
     icon: FileBarChart2,
     title: "Download Your Report",
     desc: "A full PDF report with radar chart, dimension breakdown, and recommended next steps — ready in seconds.",
-    color: "bg-green-600",
-    glow: "rgba(22,163,74,0.2)",
+    iconBg: "bg-elk-teal",
+    glow: "rgba(13,148,136,0.2)",
+    leftBorder: "border-l-elk-teal",
   },
 ];
 
@@ -53,20 +56,36 @@ export default function HowItWorks() {
 
         <div className="relative grid grid-cols-1 md:grid-cols-3 gap-6">
           {/* Connector line on desktop */}
-          <div className="hidden md:block absolute top-14 left-[calc(16.67%+1rem)] right-[calc(16.67%+1rem)] h-px bg-gradient-to-r from-elk-red/30 via-indigo-400/30 to-green-500/30 z-0" />
+          <div className="hidden md:block absolute top-14 left-[calc(16.67%+1rem)] right-[calc(16.67%+1rem)] h-px z-0"
+            style={{ background: "linear-gradient(90deg, #C0392B 0%, #6366f1 50%, #0D9488 100%)", opacity: 0.3 }}
+          />
 
-          {steps.map(({ n, icon: Icon, title, desc, color, glow }, i) => (
+          {steps.map(({ n, icon: Icon, title, desc, iconBg, glow, leftBorder }, i) => (
             <motion.div
               key={n}
               initial={{ opacity: 0, y: 28 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: i * 0.15 }}
-              className="relative z-10 bg-white rounded-2xl p-8 shadow-sm border border-gray-100 text-center"
+              className={`relative z-10 bg-white rounded-2xl p-8 shadow-sm border border-gray-100 border-l-4 ${leftBorder} text-center overflow-hidden`}
             >
+              {/* Huge decorative step number */}
+              <span
+                className="absolute -top-3 -left-1 select-none pointer-events-none font-bold"
+                style={{
+                  fontFamily: "var(--font-display)",
+                  fontSize: "7rem",
+                  opacity: 0.05,
+                  color: "#111827",
+                  lineHeight: 1,
+                }}
+              >
+                {n}
+              </span>
+
               <div className="relative flex justify-center mb-6">
                 <div
-                  className={`w-14 h-14 rounded-2xl ${color} flex items-center justify-center shadow-lg`}
+                  className={`w-14 h-14 rounded-2xl ${iconBg} flex items-center justify-center shadow-lg`}
                   style={{ boxShadow: `0 8px 24px ${glow}` }}
                 >
                   <Icon size={24} className="text-white" />

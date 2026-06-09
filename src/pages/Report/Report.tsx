@@ -46,14 +46,19 @@ export default function Report() {
     <PageWrapper>
     <div className="space-y-6">
       {/* ── Score hero ── */}
-      <div className="relative bg-elk-maroon rounded-2xl overflow-hidden">
+      <div className="relative bg-elk-ink rounded-2xl overflow-hidden">
+        {/* Diagonal maroon slash */}
         <div
-          className="absolute inset-0 opacity-20"
-          style={{ background: "radial-gradient(circle at 80% 50%, #C0392B 0%, transparent 60%)" }}
+          className="absolute inset-0"
+          style={{ background: "linear-gradient(135deg, #5b1013 0%, transparent 55%)", opacity: 0.7 }}
+        />
+        <div
+          className="absolute inset-0"
+          style={{ background: "radial-gradient(circle at 80% 50%, #C0392B 0%, transparent 55%)", opacity: 0.25 }}
         />
         <div className="relative p-8 flex flex-col sm:flex-row items-center gap-8">
           <div className="shrink-0">
-            <ScoreRing score={report.overall_score} size={150} dark />
+            <ScoreRing score={report.overall_score} size={150} dark tier={report.tier_result} />
           </div>
           <div className="text-center sm:text-left">
             <p className="text-white/50 text-xs font-semibold uppercase tracking-widest mb-2">

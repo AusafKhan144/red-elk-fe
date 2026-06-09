@@ -9,6 +9,7 @@ const features = [
     accent: "from-red-50 to-orange-50",
     iconBg: "bg-red-100",
     iconColor: "text-elk-red",
+    wide: true,
   },
   {
     icon: TrendingUp,
@@ -17,6 +18,7 @@ const features = [
     accent: "from-indigo-50 to-purple-50",
     iconBg: "bg-indigo-100",
     iconColor: "text-indigo-600",
+    wide: false,
   },
   {
     icon: BarChart3,
@@ -25,6 +27,7 @@ const features = [
     accent: "from-sky-50 to-blue-50",
     iconBg: "bg-sky-100",
     iconColor: "text-sky-600",
+    wide: false,
   },
   {
     icon: Users,
@@ -33,6 +36,7 @@ const features = [
     accent: "from-violet-50 to-fuchsia-50",
     iconBg: "bg-violet-100",
     iconColor: "text-violet-600",
+    wide: true,
   },
   {
     icon: Shield,
@@ -41,6 +45,7 @@ const features = [
     accent: "from-green-50 to-emerald-50",
     iconBg: "bg-green-100",
     iconColor: "text-green-600",
+    wide: false,
   },
   {
     icon: Zap,
@@ -49,6 +54,7 @@ const features = [
     accent: "from-yellow-50 to-amber-50",
     iconBg: "bg-yellow-100",
     iconColor: "text-yellow-600",
+    wide: false,
   },
   {
     icon: CheckCircle,
@@ -57,6 +63,7 @@ const features = [
     accent: "from-teal-50 to-cyan-50",
     iconBg: "bg-teal-100",
     iconColor: "text-teal-600",
+    wide: false,
   },
   {
     icon: Globe,
@@ -65,6 +72,7 @@ const features = [
     accent: "from-rose-50 to-pink-50",
     iconBg: "bg-rose-100",
     iconColor: "text-rose-600",
+    wide: false,
   },
 ];
 
@@ -84,7 +92,9 @@ export default function Features() {
           </span>
           <h2 className="text-4xl font-extrabold text-gray-900 mb-5 leading-tight">
             Everything You Need to{" "}
-            <span className="text-elk-red">Succeed</span>
+            <span style={{ fontFamily: "var(--font-display)", fontWeight: 700, color: "#C0392B" }}>
+              Succeed
+            </span>
           </h2>
           <p className="text-lg text-gray-500 max-w-2xl mx-auto leading-relaxed">
             A full-stack AI maturity platform — from assessment to PDF report — designed for
@@ -93,7 +103,7 @@ export default function Features() {
         </motion.div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-          {features.map(({ icon: Icon, title, desc, accent, iconBg, iconColor }, i) => (
+          {features.map(({ icon: Icon, title, desc, accent, iconBg, iconColor, wide }, i) => (
             <motion.div
               key={title}
               initial={{ opacity: 0, y: 28 }}
@@ -101,8 +111,24 @@ export default function Features() {
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: i * 0.06 }}
               whileHover={{ y: -5, transition: { duration: 0.2 } }}
-              className={`relative bg-gradient-to-br ${accent} border border-white rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow`}
+              className={`relative bg-gradient-to-br ${accent} border border-white rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow overflow-hidden ${
+                wide ? "lg:col-span-2" : ""
+              }`}
             >
+              {/* Decorative ordinal number */}
+              <span
+                className="absolute -bottom-3 -right-1 select-none pointer-events-none font-bold leading-none"
+                style={{
+                  fontFamily: "var(--font-display)",
+                  fontSize: "6rem",
+                  opacity: 0.04,
+                  color: "#111827",
+                  lineHeight: 1,
+                }}
+              >
+                {String(i + 1).padStart(2, "0")}
+              </span>
+
               <div className={`w-11 h-11 rounded-xl ${iconBg} flex items-center justify-center mb-4`}>
                 <Icon size={21} className={iconColor} />
               </div>
