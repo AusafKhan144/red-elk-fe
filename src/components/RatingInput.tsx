@@ -22,8 +22,8 @@ export default function RatingInput({ value, onChange, disabled = false, max = 5
   const options = Array.from({ length: max }, (_, i) => i + 1);
 
   return (
-    <div className="space-y-3">
-      <div className="flex gap-2.5">
+    <div className="space-y-4">
+      <div className="flex gap-2">
         {options.map((n) => {
           const isSelected = value === n;
           return (
@@ -33,15 +33,16 @@ export default function RatingInput({ value, onChange, disabled = false, max = 5
               disabled={disabled}
               onClick={() => onChange(n)}
               className={`
-                flex-1 flex flex-col items-center py-3.5 rounded-xl border-2 font-bold text-base transition-all
+                flex-1 flex flex-col items-center justify-center py-5 rounded-2xl border-2 font-extrabold text-xl transition-all
                 focus:outline-none focus-visible:ring-2 focus-visible:ring-elk-rose focus-visible:ring-offset-2
-                ${disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}
+                ${disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer hover:-translate-y-1 active:translate-y-0"}
                 ${
                   isSelected
-                    ? "bg-elk-red border-elk-red text-white shadow-lg shadow-red-900/25 scale-105 -translate-y-0.5"
-                    : "bg-white border-gray-200 text-gray-500 hover:border-elk-rose hover:text-elk-red hover:bg-red-50 hover:-translate-y-0.5"
+                    ? "bg-elk-red border-elk-red text-white shadow-xl shadow-red-900/30 scale-[1.06] -translate-y-1"
+                    : "bg-white dark:bg-gray-800/50 border-gray-200 dark:border-gray-700 text-gray-400 dark:text-white/40 hover:border-elk-rose dark:hover:border-elk-red/50 hover:text-elk-red dark:hover:text-elk-red hover:bg-red-50 dark:hover:bg-red-950/20"
                 }
               `}
+              style={{ fontFamily: "var(--font-display)" }}
             >
               {n}
             </button>
@@ -50,17 +51,20 @@ export default function RatingInput({ value, onChange, disabled = false, max = 5
       </div>
 
       {/* Active description */}
-      <div className="h-5 flex items-center justify-center">
+      <div className="min-h-6 flex items-center justify-center">
         {value !== null && (
-          <p className="text-xs font-semibold text-elk-red animate-in fade-in duration-200">
-            {value} — {labels[value - 1]}
-          </p>
+          <div className="flex items-center gap-2 animate-in fade-in duration-200">
+            <span className="text-xs font-bold text-white bg-elk-red px-2.5 py-0.5 rounded-full" style={{ fontFamily: "var(--font-display)" }}>
+              {value}
+            </span>
+            <span className="text-sm font-semibold text-gray-700 dark:text-white/70">{labels[value - 1]}</span>
+          </div>
         )}
       </div>
 
       <div className="flex justify-between px-0.5">
-        <span className="text-xs text-gray-400">{labels[0]}</span>
-        <span className="text-xs text-gray-400">{labels[labels.length - 1]}</span>
+        <span className="text-xs text-gray-400 dark:text-white/30">{labels[0]}</span>
+        <span className="text-xs text-gray-400 dark:text-white/30">{labels[labels.length - 1]}</span>
       </div>
     </div>
   );

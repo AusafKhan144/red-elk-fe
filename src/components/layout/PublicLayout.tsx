@@ -17,16 +17,17 @@ export default function PublicLayout() {
           <div className="flex items-center gap-2">
             {user ? (
               <>
-                <button
-                  onClick={() => navigate("/dashboard")}
-                  className="px-4 py-2 text-sm font-bold text-white rounded-xl transition-all shadow-md shadow-red-900/20 hover:shadow-lg hover:shadow-red-900/30 hover:-translate-y-0.5 active:translate-y-0"
-                  style={{ background: "linear-gradient(135deg, #C0392B 0%, #5b1013 100%)" }}
+                <Link
+                  to="/dashboard"
+                  className="px-4 py-2 text-sm font-semibold text-gray-600 hover:text-gray-900 rounded-lg hover:bg-gray-50 transition-all"
                 >
-                  Dashboard
-                </button>
+                  Visit Dashboard
+                </Link>
                 <button
                   onClick={async () => {
-                    await logout();navigate("/");}}
+                    await logout();
+                    navigate("/");
+                  }}
                   className="px-4 py-2 text-sm font-semibold text-gray-600 hover:text-gray-900 rounded-lg hover:bg-gray-50 transition-all"
                 >
                   Log Out

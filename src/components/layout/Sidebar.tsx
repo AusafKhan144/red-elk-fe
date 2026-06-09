@@ -9,8 +9,11 @@ import {
   LogOut,
   ChevronRight,
   X,
+  Sun,
+  Moon,
 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
+import { useTheme } from "../../context/ThemeContext";
 import logo from "../../assets/logo.svg";
 
 const navLinks = [
@@ -31,6 +34,7 @@ interface Props {
 
 export default function Sidebar({ onClose }: Props) {
   const { user, logout } = useAuth();
+  const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
 
   async function handleLogout() {
@@ -143,6 +147,14 @@ export default function Sidebar({ onClose }: Props) {
             )}
           </div>
         </div>
+        <button
+          onClick={toggleTheme}
+          className="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-sm font-medium text-white/50 hover:bg-white/8 hover:text-white/80 transition-all"
+          aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+        >
+          {theme === "dark" ? <Sun size={16} /> : <Moon size={16} />}
+          {theme === "dark" ? "Light mode" : "Dark mode"}
+        </button>
         <button
           onClick={handleLogout}
           className="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-sm font-medium text-white/50 hover:bg-white/8 hover:text-white/80 transition-all"

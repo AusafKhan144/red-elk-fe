@@ -7,6 +7,7 @@ import "./index.css";
 import "./styles/global.css";
 import App from "./App.tsx";
 import ErrorBoundary from "./components/ErrorBoundary.tsx";
+import { ThemeProvider } from "./context/ThemeContext.tsx";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -19,13 +20,15 @@ const queryClient = new QueryClient({
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    <ErrorBoundary>
-      <QueryClientProvider client={queryClient}>
-        <BrowserRouter>
-          <App />
-        </BrowserRouter>
-        <Toaster position="top-right" richColors closeButton />
-      </QueryClientProvider>
-    </ErrorBoundary>
+    <ThemeProvider>
+      <ErrorBoundary>
+        <QueryClientProvider client={queryClient}>
+          <BrowserRouter>
+            <App />
+          </BrowserRouter>
+          <Toaster position="top-right" richColors closeButton />
+        </QueryClientProvider>
+      </ErrorBoundary>
+    </ThemeProvider>
   </React.StrictMode>
 );

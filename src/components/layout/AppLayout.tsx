@@ -8,7 +8,7 @@ export default function AppLayout() {
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   return (
-    <div className="flex min-h-screen bg-elk-canvas">
+    <div className="flex min-h-screen bg-elk-canvas dark:bg-elk-ink transition-colors duration-200">
       {/* Desktop sidebar — always visible on lg+ */}
       <div className="hidden lg:block">
         <Sidebar />
