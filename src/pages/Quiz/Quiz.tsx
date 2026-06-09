@@ -1,10 +1,10 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { ChevronLeft, ChevronRight, Send } from "lucide-react";
 import { toast } from "sonner";
 import ProgressBar from "../../components/common/ProgressBar";
 import { useAssessment } from "../../hooks/useAssessments";
-import { useAnswerQuestion, useSubmitSession } from "../../hooks/useSession";
+import { useAnswerQuestion, useSubmitSession, useSessionAnswers } from "../../hooks/useSession";
 import QuestionRenderer from "../../components/assessment/QuestionRenderer";
 
 import type { Question } from "../../types/api";
@@ -34,6 +34,17 @@ export default function Quiz() {
   const [answers, setAnswers] = useState<Record<string, number>>({});
   const { mutateAsync: answerQ } = useAnswerQuestion(sessionId!);
   const { mutateAsync: submitSession, isPending: submitting } = useSubmitSession(sessionId!);
+  const { data: savedAnswers } = useSessionAnswers(sessionId!);
+
+  useEffect(() => {
+    if (savedAnswers) {
+      const restoredAnswers: Record<string, number> = {};
+      savedAnswers.forEach((answer) => {
+        restoredAnswers[answer.question_id] = answer.answer_value;
+      });
+      setAnswers(restoredAnswers);
+    }
+  }, [savedAnswers]);
 
   const questions = useMemo<FlatQuestion[]>(() => {
     if (!assessment) return [];

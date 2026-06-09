@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, ReactNode } from "react";
+import { createContext, useContext, useEffect, useState, ReactNode, useRef } from "react";
 import { supabase } from "../lib/supabase";
 import api from "../lib/api";
 import type { User } from "../types/api";
@@ -7,6 +7,7 @@ interface AuthContextValue {
   user: User | null;
   isLoading: boolean;
   logout: () => Promise<void>;
+  waitForUserLoad: () => Promise<User>;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -14,16 +15,29 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const userLoadResolversRef = useRef<Array<(user: User) => void>>([]);
 
   async function loadUser() {
     try {
       const { data } = await api.get<User>("/auth/me");
       setUser(data);
+      userLoadResolversRef.current.forEach((resolve) => resolve(data));
+      userLoadResolversRef.current = [];
     } catch {
       setUser(null);
     } finally {
       setIsLoading(false);
     }
+  }
+
+  function waitForUserLoad(): Promise<User> {
+    return new Promise((resolve) => {
+      if (user) {
+        resolve(user);
+      } else {
+        userLoadResolversRef.current.push(resolve);
+      }
+    });
   }
 
   useEffect(() => {
@@ -53,7 +67,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <AuthContext.Provider value={{ user, isLoading, logout }}>
+    <AuthContext.Provider value={{ user, isLoading, logout, waitForUserLoad }}>
       {children}
     </AuthContext.Provider>
   );

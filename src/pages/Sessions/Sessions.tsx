@@ -156,6 +156,14 @@ export default function Sessions() {
                           View Report <ArrowRight size={12} />
                         </Link>
                       )}
+                      {s.status === "in_progress" && (
+                        <Link
+                          to={`/sessions/${s.id}/quiz`}
+                          className="inline-flex items-center gap-1 text-xs font-bold text-elk-red hover:text-red-800 transition-colors"
+                        >
+                          Resume <ArrowRight size={12} />
+                        </Link>
+                      )}
                     </td>
                   </tr>
                 );

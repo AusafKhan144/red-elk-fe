@@ -5,6 +5,7 @@ import { z } from "zod";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Eye, EyeOff, Mail, Lock, Building2, CheckCircle, BarChart2, FileDown } from "lucide-react";
 import { supabase } from "../../lib/supabase";
+import { useAuth } from "../../context/AuthContext";
 import api from "../../lib/api";
 import logo from "../../assets/logo.svg";
 
@@ -37,6 +38,7 @@ export default function LoginPage() {
   const [forgotSent, setForgotSent] = useState(false);
   const [forgotLoading, setForgotLoading] = useState(false);
   const navigate = useNavigate();
+  const { waitForUserLoad } = useAuth();
 
   async function handleForgotPassword(e: React.FormEvent) {
     e.preventDefault();
@@ -70,6 +72,7 @@ export default function LoginPage() {
         const { error } = await supabase.auth.signInWithPassword(values as LoginData);
         if (error) throw error;
       }
+      await waitForUserLoad();
       navigate("/dashboard");
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "An error occurred";

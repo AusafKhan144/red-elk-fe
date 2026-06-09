@@ -13,6 +13,7 @@ export default function Dashboard() {
   const { data: assessments, isLoading: loadingA } = useAssessments();
   const { data: sessions, isLoading: loadingS } = useSessions();
 
+  const inProgress: Session[] = sessions?.filter((s: Session) => s.status === "in_progress") ?? [];
   const completed: Session[] = sessions?.filter((s: Session) => s.status === "completed") ?? [];
 
   const assessmentMap = new Map<string, Assessment>(
@@ -65,6 +66,74 @@ export default function Dashboard() {
           value={user?.tier ? <SubscriptionBadge tier={user.tier} /> : "—"}
         />
       </div>
+
+      {/* ── In Progress Assessments ── */}
+      {inProgress.length > 0 && (
+        <div>
+          <div className="flex items-center justify-between mb-4">
+            <h2
+              className="text-lg font-bold text-gray-900"
+              style={{ fontFamily: "var(--font-display)" }}
+            >
+              Continue Your Assessments
+            </h2>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {inProgress.map((s) => {
+              const assessment = assessmentMap.get(s.assessment_id);
+              return (
+                <div
+                  key={s.id}
+                  className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden hover:shadow-md hover:border-gray-200 transition-all flex flex-col"
+                >
+                  {/* Top accent bar */}
+                  <div
+                    className="h-1"
+                    style={{ background: "linear-gradient(90deg, #C0392B, #da8f93)" }}
+                  />
+                  <div className="p-6 flex flex-col flex-1">
+                    <div className="flex items-center gap-2 mb-3">
+                      <div className="w-8 h-8 rounded-lg bg-amber-50 flex items-center justify-center">
+                        <span className="text-amber-600 text-sm font-bold">⏳</span>
+                      </div>
+                      <span className="text-xs font-bold text-gray-400 uppercase tracking-wide">
+                        In Progress
+                      </span>
+                    </div>
+                    <h3
+                      className="text-base font-bold text-gray-900 mb-2 leading-snug"
+                      style={{ fontFamily: "var(--font-display)" }}
+                    >
+                      {assessment?.name ?? (
+                        <span className="font-mono text-gray-400 text-sm">
+                          {s.assessment_id.slice(0, 8)}…
+                        </span>
+                      )}
+                    </h3>
+                    <p className="text-sm text-gray-500 leading-relaxed flex-1">
+                      Started{" "}
+                      {new Date(s.started_at).toLocaleDateString("en-GB", {
+                        day: "numeric",
+                        month: "short",
+                        year: "numeric",
+                      })}
+                    </p>
+                    <Link
+                      to={`/sessions/${s.id}/quiz`}
+                      className="mt-5 flex items-center justify-center gap-2 py-2.5 text-white text-sm font-bold rounded-xl transition-all shadow-sm shadow-red-900/20 hover:shadow-md hover:shadow-red-900/30 hover:-translate-y-0.5 active:translate-y-0"
+                      style={{ background: "linear-gradient(135deg, #C0392B 0%, #5b1013 100%)" }}
+                    >
+                      <ArrowRight size={15} />
+                      Continue Assessment
+                    </Link>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {/* ── Assessments ── */}
       <div>
