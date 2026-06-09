@@ -121,6 +121,11 @@ export default function Dashboard() {
                     </p>
                     <Link
                       to={`/sessions/${s.id}/quiz`}
+                      onClick={() => {
+                        if (s.assessment_slug) {
+                          sessionStorage.setItem(`session-${s.id}-slug`, s.assessment_slug);
+                        }
+                      }}
                       className="mt-5 flex items-center justify-center gap-2 py-2.5 text-white text-sm font-bold rounded-xl transition-all shadow-sm shadow-red-900/20 hover:shadow-md hover:shadow-red-900/30 hover:-translate-y-0.5 active:translate-y-0"
                       style={{ background: "linear-gradient(135deg, #C0392B 0%, #5b1013 100%)" }}
                     >

@@ -38,7 +38,7 @@ export default function LoginPage() {
   const [forgotSent, setForgotSent] = useState(false);
   const [forgotLoading, setForgotLoading] = useState(false);
   const navigate = useNavigate();
-  const { waitForUserLoad } = useAuth();
+  const { waitForUserLoad, reloadUser } = useAuth();
 
   async function handleForgotPassword(e: React.FormEvent) {
     e.preventDefault();
@@ -68,11 +68,12 @@ export default function LoginPage() {
         const { error } = await supabase.auth.signUp(creds);
         if (error) throw error;
         await api.post("/auth/register", { company });
+        await reloadUser();
       } else {
         const { error } = await supabase.auth.signInWithPassword(values as LoginData);
         if (error) throw error;
+        await waitForUserLoad();
       }
-      await waitForUserLoad();
       navigate("/dashboard");
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "An error occurred";

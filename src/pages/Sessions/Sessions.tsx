@@ -159,6 +159,11 @@ export default function Sessions() {
                       {s.status === "in_progress" && (
                         <Link
                           to={`/sessions/${s.id}/quiz`}
+                          onClick={() => {
+                            if (s.assessment_slug) {
+                              sessionStorage.setItem(`session-${s.id}-slug`, s.assessment_slug);
+                            }
+                          }}
                           className="inline-flex items-center gap-1 text-xs font-bold text-elk-red hover:text-red-800 transition-colors"
                         >
                           Resume <ArrowRight size={12} />
