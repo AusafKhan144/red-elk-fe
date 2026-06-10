@@ -207,7 +207,7 @@ export default function AdminUsers() {
                 onClick={confirmAction}
                 disabled={updating}
                 className="px-4 py-2 text-sm font-semibold text-white rounded-xl disabled:opacity-60 transition-all"
-                style={{ background: "linear-gradient(135deg, #C0392B 0%, #5b1013 100%)" }}
+                style={{ background: "var(--gradient-brand)" }}
               >
                 {updating ? "Updating…" : "Confirm"}
               </button>

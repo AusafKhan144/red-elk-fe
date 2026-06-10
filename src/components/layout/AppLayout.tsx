@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { Outlet } from "react-router-dom";
 import { Menu } from "lucide-react";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import Sidebar from "./Sidebar";
 
 export default function AppLayout() {
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const prefersReduced = useReducedMotion();
 
   return (
     <div className="flex min-h-screen bg-elk-canvas dark:bg-elk-ink transition-colors duration-200">
@@ -34,7 +35,11 @@ export default function AppLayout() {
               initial={{ x: -240 }}
               animate={{ x: 0 }}
               exit={{ x: -240 }}
-              transition={{ type: "spring", stiffness: 400, damping: 35 }}
+              transition={
+                prefersReduced
+                  ? { type: "tween", duration: 0.01 }
+                  : { type: "spring", stiffness: 400, damping: 35 }
+              }
               className="fixed top-0 left-0 h-full z-40 lg:hidden"
             >
               <Sidebar onClose={() => setDrawerOpen(false)} />

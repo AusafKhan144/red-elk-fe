@@ -1,4 +1,4 @@
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { ArrowRight, CheckCircle, Sparkles, FileText } from "lucide-react";
 
@@ -22,6 +22,7 @@ const tierGradients: Record<string, string> = {
 
 export default function Hero() {
   const navigate = useNavigate();
+  const prefersReduced = useReducedMotion();
 
   return (
     <section className="grain relative overflow-hidden bg-elk-maroon min-h-[90vh] flex items-center">
@@ -30,14 +31,14 @@ export default function Hero() {
         <motion.div
           className="absolute -top-40 -right-40 w-[700px] h-[700px] rounded-full"
           style={{ background: "radial-gradient(circle, rgba(192,57,43,0.3) 0%, transparent 70%)" }}
-          animate={{ scale: [1, 1.1, 1], opacity: [0.6, 0.85, 0.6] }}
-          transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
+          animate={prefersReduced ? { scale: 1, opacity: 0.7 } : { scale: [1, 1.1, 1], opacity: [0.6, 0.85, 0.6] }}
+          transition={prefersReduced ? { duration: 0 } : { duration: 10, repeat: Infinity, ease: "easeInOut" }}
         />
         <motion.div
           className="absolute -bottom-60 -left-40 w-[600px] h-[600px] rounded-full"
           style={{ background: "radial-gradient(circle, rgba(212,167,44,0.1) 0%, transparent 70%)" }}
-          animate={{ scale: [1, 1.15, 1] }}
-          transition={{ duration: 14, repeat: Infinity, ease: "easeInOut", delay: 3 }}
+          animate={prefersReduced ? { scale: 1 } : { scale: [1, 1.15, 1] }}
+          transition={prefersReduced ? { duration: 0 } : { duration: 14, repeat: Infinity, ease: "easeInOut", delay: 3 }}
         />
         {/* Grid overlay */}
         <div
@@ -53,9 +54,9 @@ export default function Hero() {
       <div className="relative max-w-7xl mx-auto px-6 py-24 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center w-full">
         {/* ── Left copy ── */}
         <motion.div
-          initial={{ opacity: 0, y: 32 }}
+          initial={prefersReduced ? false : { opacity: 0, y: 32 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, ease: "easeOut" }}
+          transition={{ duration: prefersReduced ? 0 : 0.7, ease: "easeOut" }}
         >
           <div className="inline-flex items-center gap-2 bg-white/8 border border-white/15 rounded-full px-4 py-1.5 mb-7">
             <Sparkles size={13} className="text-elk-rose" />
@@ -96,7 +97,7 @@ export default function Hero() {
             <button
               onClick={() => navigate("/login?mode=register")}
               className="flex items-center gap-2 px-7 py-3.5 text-white font-bold rounded-xl transition-all shadow-lg shadow-black/30 hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0"
-              style={{ background: "linear-gradient(135deg, #C0392B 0%, #5b1013 100%)" }}
+              style={{ background: "var(--gradient-brand)" }}
             >
               Get Started Free <ArrowRight size={17} />
             </button>
@@ -111,9 +112,9 @@ export default function Hero() {
 
         {/* ── Score card mockup ── */}
         <motion.div
-          initial={{ opacity: 0, x: 48, y: 16 }}
+          initial={prefersReduced ? false : { opacity: 0, x: 48, y: 16 }}
           animate={{ opacity: 1, x: 0, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.25, ease: "easeOut" }}
+          transition={{ duration: prefersReduced ? 0 : 0.8, delay: prefersReduced ? 0 : 0.25, ease: "easeOut" }}
           className="hidden lg:block"
         >
           <div className="relative max-w-sm ml-auto">
@@ -144,9 +145,9 @@ export default function Hero() {
                     <motion.div
                       className="h-2 rounded-full"
                       style={{ background: "linear-gradient(90deg, #C0392B, #D4A72C)" }}
-                      initial={{ width: 0 }}
+                      initial={prefersReduced ? { width: "78%" } : { width: 0 }}
                       animate={{ width: "78%" }}
-                      transition={{ duration: 1.2, delay: 0.6, ease: "easeOut" }}
+                      transition={{ duration: prefersReduced ? 0 : 1.2, delay: prefersReduced ? 0 : 0.6, ease: "easeOut" }}
                     />
                   </div>
                   <p className="text-white/30 text-xs">out of 100</p>
@@ -162,9 +163,9 @@ export default function Hero() {
                       <motion.div
                         className="h-1.5 rounded-full"
                         style={{ background: tierGradients[label] ?? "#C0392B" }}
-                        initial={{ width: 0 }}
+                        initial={prefersReduced ? { width: `${score}%` } : { width: 0 }}
                         animate={{ width: `${score}%` }}
-                        transition={{ duration: 1, delay: 0.8, ease: "easeOut" }}
+                        transition={{ duration: prefersReduced ? 0 : 1, delay: prefersReduced ? 0 : 0.8, ease: "easeOut" }}
                       />
                     </div>
                     <span className="text-white/35 text-xs w-5 text-right">{score}</span>
@@ -175,9 +176,9 @@ export default function Hero() {
 
             {/* Floating "Report Ready" mini-card */}
             <motion.div
-              initial={{ opacity: 0, y: 8, x: 8 }}
+              initial={prefersReduced ? false : { opacity: 0, y: 8, x: 8 }}
               animate={{ opacity: 1, y: 0, x: 0 }}
-              transition={{ duration: 0.5, delay: 1.2, ease: "easeOut" }}
+              transition={{ duration: prefersReduced ? 0 : 0.5, delay: prefersReduced ? 0 : 1.2, ease: "easeOut" }}
               className="absolute -bottom-5 -right-5 bg-white rounded-2xl shadow-2xl px-4 py-3 flex items-center gap-3"
             >
               <div className="w-8 h-8 rounded-xl bg-teal-50 flex items-center justify-center shrink-0">

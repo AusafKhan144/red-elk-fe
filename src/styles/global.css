@@ -1,13 +1,6 @@
 /* Legacy utility classes used by the landing page components.
    Design tokens and font loading live in src/index.css via @theme. */
 
-.gradient-text {
-  background: linear-gradient(135deg, #5b1013 0%, #C0392B 60%, #da8f93 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
 .hero-pattern {
   background-image:
     radial-gradient(circle at 20% 30%, rgba(218, 143, 147, 0.15) 0%, transparent 50%),

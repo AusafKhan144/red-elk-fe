@@ -2,7 +2,7 @@ import { useState, useMemo, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { ChevronLeft, ChevronRight, Send, BookOpen } from "lucide-react";
 import { toast } from "sonner";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import ProgressBar from "../../components/common/ProgressBar";
 import { useAssessment } from "../../hooks/useAssessments";
 import { useAnswerQuestion, useSubmitSession, useSessionAnswers } from "../../hooks/useSession";
@@ -90,6 +90,7 @@ export default function Quiz() {
 
   const dimIdx = question ? (dimensionIndexMap.get(question.dimension_id) ?? 0) : 0;
   const dimColor = DIMENSION_COLORS[dimIdx % DIMENSION_COLORS.length];
+  const prefersReduced = useReducedMotion();
 
   async function handleAnswer(value: number) {
     if (!question) return;
@@ -168,6 +169,8 @@ export default function Quiz() {
       <div className="bg-white dark:bg-elk-slate rounded-2xl border border-gray-100 dark:border-gray-700/40 shadow-sm px-5 py-4">
         {useDots ? (
           <div className="flex items-center flex-wrap gap-y-2">
+            {/* Dots are display-only (non-interactive). If tap-to-jump is ever added,
+                each dot must grow to a 44px (w-11 h-11) touch target per WCAG 2.5.5. */}
             {questions.map((_, i) => (
               <div key={i} className="flex items-center">
                 {dimensionBoundaries.has(i) && (
@@ -176,10 +179,10 @@ export default function Quiz() {
                 <div
                   className={`flex items-center justify-center rounded-full text-xs font-bold transition-all select-none ${
                     i < current
-                      ? "w-6 h-6 bg-elk-red text-white shadow-sm shadow-red-900/20"
+                      ? "w-8 h-8 bg-elk-red text-white shadow-sm shadow-red-900/20"
                       : i === current
-                      ? "w-7 h-7 ring-2 ring-elk-red ring-offset-1 bg-red-50 dark:bg-red-950/40 text-elk-red"
-                      : "w-6 h-6 bg-gray-100 dark:bg-gray-700/60 text-gray-400 dark:text-white/30"
+                      ? "w-9 h-9 ring-2 ring-elk-red ring-offset-1 bg-red-50 dark:bg-red-950/40 text-elk-red"
+                      : "w-8 h-8 bg-gray-100 dark:bg-gray-700/60 text-gray-400 dark:text-white/40"
                   }`}
                   style={i === current ? { fontFamily: "var(--font-display)" } : undefined}
                 >
@@ -198,20 +201,19 @@ export default function Quiz() {
         {question && (
           <motion.div
             key={current}
-            initial={{ opacity: 0, x: direction * 30 }}
+            initial={{ opacity: 0, x: prefersReduced ? 0 : direction * 30 }}
             animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: direction * -30 }}
-            transition={{ duration: 0.2, ease: "easeInOut" }}
+            exit={{ opacity: 0, x: prefersReduced ? 0 : direction * -30 }}
+            transition={{ duration: prefersReduced ? 0 : 0.2, ease: "easeInOut" }}
             className="bg-white dark:bg-elk-slate rounded-2xl border border-gray-100 dark:border-gray-700/40 shadow-sm overflow-hidden"
-            style={{ borderLeft: `4px solid ${dimColor.accent}` }}
           >
             <div className="p-7 space-y-6">
-              <div>
+              <div className="flex items-start gap-3">
                 <span
-                  className={`inline-block text-xs font-bold uppercase tracking-widest border rounded-full px-3 py-1 mb-5 ${dimColor.bg} ${dimColor.text}`}
-                >
-                  {question.dimension_name}
-                </span>
+                  className="w-2 h-2 rounded-full shrink-0 mt-2.5"
+                  style={{ background: dimColor.accent }}
+                  aria-hidden="true"
+                />
                 <p className="text-2xl font-bold text-gray-900 dark:text-white/90 leading-snug">{question.text}</p>
               </div>
 
@@ -245,7 +247,7 @@ export default function Quiz() {
             onClick={() => goTo(current + 1)}
             disabled={answers[question?.id ?? ""] === undefined}
             className="flex items-center gap-2 px-6 py-2.5 text-sm font-bold disabled:opacity-40 disabled:cursor-not-allowed text-white rounded-xl transition-all shadow-md shadow-red-900/20 hover:-translate-y-0.5 active:translate-y-0"
-            style={{ background: "linear-gradient(135deg, #C0392B 0%, #5b1013 100%)" }}
+            style={{ background: "var(--gradient-brand)" }}
           >
             Next <ChevronRight size={16} />
           </button>
@@ -254,7 +256,7 @@ export default function Quiz() {
             onClick={handleSubmit}
             disabled={submitting || answers[question?.id ?? ""] === undefined}
             className="flex items-center gap-2 px-7 py-2.5 text-sm font-bold disabled:opacity-40 disabled:cursor-not-allowed text-white rounded-xl transition-all shadow-md shadow-red-900/20 hover:-translate-y-0.5 active:translate-y-0"
-            style={{ background: "linear-gradient(135deg, #C0392B 0%, #5b1013 100%)" }}
+            style={{ background: "var(--gradient-brand)" }}
           >
             {submitting ? (
               <>

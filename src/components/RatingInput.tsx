@@ -23,7 +23,7 @@ export default function RatingInput({ value, onChange, disabled = false, max = 5
 
   return (
     <div className="space-y-4">
-      <div className="flex gap-2">
+      <div className={`flex gap-2 ${max > 5 ? "flex-wrap" : ""}`}>
         {options.map((n) => {
           const isSelected = value === n;
           return (
@@ -32,8 +32,10 @@ export default function RatingInput({ value, onChange, disabled = false, max = 5
               type="button"
               disabled={disabled}
               onClick={() => onChange(n)}
+              aria-pressed={isSelected}
+              aria-label={`${n} — ${labels[n - 1]}`}
               className={`
-                flex-1 flex flex-col items-center justify-center py-5 rounded-2xl border-2 font-extrabold text-xl transition-all
+                flex-1 min-w-[44px] flex flex-col items-center justify-center py-5 rounded-2xl border-2 font-extrabold text-xl transition-all
                 focus:outline-none focus-visible:ring-2 focus-visible:ring-elk-rose focus-visible:ring-offset-2
                 ${disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer hover:-translate-y-1 active:translate-y-0"}
                 ${
@@ -63,8 +65,8 @@ export default function RatingInput({ value, onChange, disabled = false, max = 5
       </div>
 
       <div className="flex justify-between px-0.5">
-        <span className="text-xs text-gray-400 dark:text-white/30">{labels[0]}</span>
-        <span className="text-xs text-gray-400 dark:text-white/30">{labels[labels.length - 1]}</span>
+        <span className="text-xs text-gray-500 dark:text-white/50">{labels[0]}</span>
+        <span className="text-xs text-gray-500 dark:text-white/50">{labels[labels.length - 1]}</span>
       </div>
     </div>
   );

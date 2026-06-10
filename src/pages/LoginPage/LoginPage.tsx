@@ -95,9 +95,6 @@ export default function LoginPage() {
           </div>
 
           <div className="flex-1 flex flex-col justify-center mt-12">
-            <p className="text-elk-rose text-sm font-semibold tracking-widest uppercase mb-4">
-              AI Maturity Platform
-            </p>
             <h2 className="text-4xl font-extrabold text-white leading-tight mb-5">
               Measure your<br />organisation's<br />AI readiness
             </h2>
@@ -269,7 +266,7 @@ export default function LoginPage() {
               type="submit"
               disabled={isSubmitting}
               className="w-full py-3 mt-1 disabled:opacity-60 disabled:cursor-not-allowed text-white font-bold text-sm rounded-xl transition-all shadow-md shadow-red-900/20 hover:shadow-lg hover:shadow-red-900/30 hover:-translate-y-0.5 active:translate-y-0"
-              style={{ background: "linear-gradient(135deg, #C0392B 0%, #5b1013 100%)" }}
+              style={{ background: "var(--gradient-brand)" }}
             >
               {isSubmitting
                 ? "Please wait…"
