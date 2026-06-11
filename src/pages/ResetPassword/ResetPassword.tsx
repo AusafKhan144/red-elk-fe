@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Lock, Eye, EyeOff, CheckCircle } from "lucide-react";
 import { supabase } from "../../lib/supabase";
-import logo from "../../assets/logo.svg";
+import logo from "../../assets/RedElkonly.svg";
 
 export default function ResetPassword() {
   const navigate = useNavigate();

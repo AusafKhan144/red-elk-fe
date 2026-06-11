@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import { useTheme } from "../../context/ThemeContext";
-import logo from "../../assets/logo.svg";
+import logo from "../../assets/RedElkonly.svg";
 
 const navLinks = [
   { to: "/dashboard", icon: LayoutDashboard, label: "Dashboard" },

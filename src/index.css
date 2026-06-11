@@ -1,5 +1,8 @@
-@import "tailwindcss";
+/* Font imports must precede the tailwindcss import (which gets inlined). */
 @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700;800;900&display=swap');
+/* Atlas public surfaces (landing + login) — scoped under .relk-landing / .relk-login */
+@import url('https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+@import "tailwindcss";
 
 @custom-variant dark (&:where(.dark, .dark *));
 
@@ -51,6 +54,77 @@
     background-color: rgb(192 57 43 / 0.15);
     color: #111827;
   }
+}
+
+/* ─── Atlas app-interior design tokens ──────────────────────────── */
+:root {
+  --bg:            #F2EDE5;
+  --bg-tint:       #EAE3D8;
+  --surface:       #FFFFFF;
+  --surface-2:     #FDFBF8;
+  --surface-inset: #F5F0E8;
+  --border:        #E7DFD2;
+  --border-strong: #D6CBB8;
+  --ink:           #211C16;
+  --muted:         #6E6557;
+  --faint:         #A39882;
+  --accent:        #B5232A;
+  --accent-press:  #8E1820;
+  --accent-soft:   #F6E6E3;
+  --accent-ink:    #FFFFFF;
+  --radius:        14px;
+  --radius-lg:     20px;
+  --card-shadow:   0 1px 2px rgba(33,28,22,.05), 0 10px 30px -18px rgba(78,18,22,.40);
+  --card-shadow-hover: 0 3px 6px rgba(33,28,22,.06), 0 18px 40px -20px rgba(78,18,22,.45);
+  --inner-line:    inset 0 0 0 1px var(--border);
+  --ease:          cubic-bezier(.22,.61,.36,1);
+  --font-ui:       'Schibsted Grotesk', ui-sans-serif, system-ui, sans-serif;
+  --font-mono:     'JetBrains Mono', ui-monospace, monospace;
+  --t-nascent:     #B5232A;
+  --t-developing:  #BC7A1E;
+  --t-maturing:    #3C6E8F;
+  --t-leading:     #3C7A4E;
+}
+
+/* ─── App-interior utility classes ──────────────────────────────── */
+.re-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--card-shadow);
+}
+.re-card-hover:hover {
+  box-shadow: var(--card-shadow-hover);
+}
+.re-eyebrow {
+  font-size: 11px;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  color: var(--faint);
+  font-weight: 600;
+}
+.re-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 9px 2px 7px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  border: 1px solid transparent;
+}
+.re-chip .dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  flex-shrink: 0;
+}
+.re-fade-in {
+  animation: reUp .45s var(--ease) both;
+}
+@keyframes reUp {
+  from { transform: translateY(7px); opacity: 0; }
+  to   { transform: none;            opacity: 1; }
 }
 
 /* ─── Custom utilities ───────────────────────────────────────────── */

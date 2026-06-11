@@ -9,7 +9,7 @@ export default function AppLayout() {
   const prefersReduced = useReducedMotion();
 
   return (
-    <div className="flex min-h-screen bg-elk-canvas dark:bg-elk-ink transition-colors duration-200">
+    <div className="flex min-h-screen" style={{ background: "var(--bg)" }}>
       {/* Desktop sidebar — always visible on lg+ */}
       <div className="hidden lg:block">
         <Sidebar />
