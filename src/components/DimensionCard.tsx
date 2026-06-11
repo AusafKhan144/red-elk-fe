@@ -16,11 +16,11 @@ const barColor: Record<string, string> = {
   leading:    "bg-elk-gold",
 };
 
-const leftBorder: Record<string, string> = {
-  nascent:    "border-l-elk-red",
-  developing: "border-l-amber-400",
-  maturing:   "border-l-elk-teal",
-  leading:    "border-l-elk-gold",
+const cardTint: Record<string, string> = {
+  nascent:    "bg-red-50/40 dark:bg-red-950/10",
+  developing: "bg-amber-50/40 dark:bg-amber-950/10",
+  maturing:   "bg-teal-50/40 dark:bg-teal-950/10",
+  leading:    "bg-yellow-50/40 dark:bg-yellow-950/10",
 };
 
 const labelColor: Record<string, string> = {
@@ -38,11 +38,20 @@ export default function DimensionCard({ dimension }: { dimension: DimensionResul
 
   return (
     <div
-      className={`bg-white dark:bg-elk-slate rounded-xl border border-gray-100 dark:border-gray-700/40 border-l-4 ${leftBorder[tier]} shadow-sm hover:shadow-md transition-all`}
+      className={`${cardTint[tier]} dark:bg-elk-slate rounded-xl border border-gray-100 dark:border-gray-700/40 shadow-sm hover:shadow-md transition-all`}
     >
       <div
         className={`p-5 ${hasRec ? "cursor-pointer select-none" : ""}`}
+        role={hasRec ? "button" : undefined}
+        tabIndex={hasRec ? 0 : undefined}
+        aria-expanded={hasRec ? expanded : undefined}
         onClick={() => hasRec && setExpanded((e) => !e)}
+        onKeyDown={(e) => {
+          if (hasRec && (e.key === "Enter" || e.key === " ")) {
+            e.preventDefault();
+            setExpanded((prev) => !prev);
+          }
+        }}
       >
         <div className="flex items-center justify-between mb-3">
           <h3 className="text-sm font-bold text-gray-800 dark:text-white/90 leading-snug">{dimension.name}</h3>

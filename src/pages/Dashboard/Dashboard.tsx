@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { ArrowRight, ClipboardCheck, BarChart2, Award, Plus, Layers, Play } from "lucide-react";
+import { ArrowRight, ClipboardCheck, BarChart2, Award, Plus, Layers, Play, Activity } from "lucide-react";
 import PageWrapper from "../../components/common/PageWrapper";
 import { useAssessments } from "../../hooks/useAssessments";
 import { useSessions } from "../../hooks/useSession";
@@ -8,18 +8,6 @@ import SubscriptionBadge from "../../components/SubscriptionBadge";
 import TierUpgradeTeaser from "../../components/TierUpgradeTeaser";
 import type { ReactNode } from "react";
 import type { Assessment, Session } from "../../types/api";
-
-const TIER_BORDER: Record<string, string> = {
-  free: "border-l-elk-red",
-  basic: "border-l-blue-500",
-  premium: "border-l-elk-gold",
-};
-
-const TIER_DESC: Record<string, string> = {
-  free: "Core questions only",
-  basic: "Core + intermediate",
-  premium: "Full question suite",
-};
 
 function greeting() {
   const h = new Date().getHours();
@@ -46,77 +34,51 @@ export default function Dashboard() {
     <PageWrapper>
       <div className="space-y-8">
 
-        {/* ── Hero welcome strip ── */}
-        <div className="grain relative rounded-2xl overflow-hidden bg-elk-ink px-7 py-6 flex items-center justify-between gap-4">
-          <div
-            className="absolute inset-0 pointer-events-none"
-            style={{ background: "linear-gradient(135deg, #5b1013 0%, transparent 55%)", opacity: 0.6 }}
-          />
-          <div
-            className="absolute inset-0 pointer-events-none"
-            style={{ background: "radial-gradient(circle at 90% 50%, #C0392B 0%, transparent 60%)", opacity: 0.18 }}
-          />
-          <div className="relative">
-            <p className="text-white/50 text-xs font-semibold uppercase tracking-widest mb-1">{greeting()}</p>
+        {/* ── Welcome ── */}
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <p className="text-xs font-semibold text-gray-400 dark:text-white/30 uppercase tracking-widest mb-1">
+              {greeting()}
+            </p>
             <h1
-              className="text-2xl font-extrabold text-white leading-tight"
+              className="text-2xl font-bold text-gray-900 dark:text-white leading-tight"
               style={{ fontFamily: "var(--font-display)" }}
             >
               {firstName}
             </h1>
-            <p className="text-white/50 text-sm mt-1">Here&apos;s your AI maturity snapshot.</p>
+            <p className="text-sm text-gray-400 dark:text-white/40 mt-1">Your AI maturity snapshot</p>
           </div>
-          <div className="relative hidden sm:flex flex-col items-end gap-2 shrink-0">
+          <div className="shrink-0 hidden sm:block mt-1">
             {user?.tier && <SubscriptionBadge tier={user.tier} size="lg" />}
-            {user?.tier && user.tier !== "premium" && (
-              <p className="text-amber-400/80 text-xs font-medium">
-                Unlock more →
-              </p>
-            )}
           </div>
         </div>
 
         {/* ── Stats row ── */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          <GradientStatCard
-            icon={<ClipboardCheck size={20} className="text-white" />}
+          <StatCard
+            icon={<ClipboardCheck size={17} className="text-elk-red" />}
             label="Sessions done"
             value={loadingS ? "—" : completed.length}
-            gradient="linear-gradient(135deg, #5b1013 0%, #C0392B 100%)"
+            iconBg="bg-red-50 dark:bg-red-950/30"
           />
-          <GradientStatCard
-            icon={<BarChart2 size={20} className="text-white" />}
+          <StatCard
+            icon={<BarChart2 size={17} className="text-gray-500 dark:text-white/45" />}
             label="Assessments"
             value={loadingA ? "—" : (assessments?.length ?? 0)}
-            gradient="linear-gradient(135deg, #1A1D2E 0%, #0E0F1A 100%)"
+            iconBg="bg-gray-100 dark:bg-white/6"
           />
-          <div className="bg-white dark:bg-elk-slate rounded-2xl border border-gray-100 dark:border-gray-700/40 shadow-sm p-5 flex flex-col">
-            <div className="w-9 h-9 rounded-xl bg-teal-50 dark:bg-teal-900/30 flex items-center justify-center mb-3">
-              <BarChart2 size={18} className="text-elk-teal" />
-            </div>
-            <p className="text-xs text-gray-400 dark:text-white/40 mb-1.5">In progress</p>
-            <div
-              className="text-3xl font-extrabold text-gray-900 dark:text-white/90 leading-none mb-1"
-              style={{ fontFamily: "var(--font-display)" }}
-            >
-              {loadingS ? "—" : inProgress.length}
-            </div>
-            <p className="text-xs text-gray-400 dark:text-white/30">active session{inProgress.length !== 1 ? "s" : ""}</p>
-          </div>
-          <div className={`bg-white dark:bg-elk-slate rounded-2xl border border-gray-100 dark:border-gray-700/40 border-l-4 ${TIER_BORDER[user?.tier ?? "free"]} shadow-sm p-5 flex flex-col`}>
-            <div className="w-9 h-9 rounded-xl bg-amber-50 dark:bg-amber-900/20 flex items-center justify-center mb-3">
-              <Award size={18} className="text-amber-500" />
-            </div>
-            <p className="text-xs text-gray-400 dark:text-white/40 mb-1.5">Your tier</p>
-            {user?.tier ? (
-              <>
-                <SubscriptionBadge tier={user.tier} />
-                <p className="text-xs text-gray-400 dark:text-white/30 mt-1.5">{TIER_DESC[user.tier]}</p>
-              </>
-            ) : (
-              <span className="text-2xl font-extrabold text-gray-300 dark:text-white/20" style={{ fontFamily: "var(--font-display)" }}>—</span>
-            )}
-          </div>
+          <StatCard
+            icon={<Activity size={17} className="text-elk-teal" />}
+            label="In progress"
+            value={loadingS ? "—" : inProgress.length}
+            iconBg="bg-teal-50 dark:bg-teal-900/20"
+          />
+          <StatCard
+            icon={<Award size={17} className="text-amber-500" />}
+            label="Your tier"
+            value={user?.tier ? <SubscriptionBadge tier={user.tier} /> : <span className="text-gray-300 dark:text-white/20">—</span>}
+            iconBg="bg-amber-50 dark:bg-amber-900/20"
+          />
         </div>
 
         {/* ── Tier upgrade teaser ── */}
@@ -127,17 +89,20 @@ export default function Dashboard() {
         {/* ── In Progress (resume ribbon) ── */}
         {inProgress.length > 0 && (
           <div>
-            <h2 className="text-base font-bold text-gray-900 dark:text-white/90 mb-3" style={{ fontFamily: "var(--font-display)" }}>
+            <h2
+              className="text-xs font-semibold text-gray-500 dark:text-white/40 uppercase tracking-wide mb-3"
+              style={{ fontFamily: "var(--font-display)" }}
+            >
               Continue where you left off
             </h2>
-            <div className="space-y-3">
+            <div className="space-y-2.5">
               {inProgress.map((s) => {
                 const assessment = assessmentMap.get(s.assessment_id);
                 const daysAgo = Math.floor((Date.now() - new Date(s.started_at).getTime()) / 86_400_000);
                 return (
                   <div
                     key={s.id}
-                    className="flex items-center justify-between gap-4 rounded-2xl border border-amber-300/30 dark:border-amber-600/20 bg-amber-50/60 dark:bg-amber-950/20 px-5 py-4"
+                    className="flex items-center justify-between gap-4 rounded-xl border border-amber-300/30 dark:border-amber-600/20 bg-amber-50/60 dark:bg-amber-950/20 px-5 py-4"
                   >
                     <div className="flex items-center gap-4 min-w-0">
                       <span className="relative flex shrink-0">
@@ -145,7 +110,7 @@ export default function Dashboard() {
                         <span className="relative inline-flex w-3 h-3 rounded-full bg-amber-400" />
                       </span>
                       <div className="min-w-0">
-                        <p className="text-sm font-bold text-gray-900 dark:text-white/90 truncate">
+                        <p className="text-sm font-semibold text-gray-900 dark:text-white/90 truncate">
                           {assessment?.name ?? s.assessment_id.slice(0, 8) + "…"}
                         </p>
                         <p className="text-xs text-gray-400 dark:text-white/40">
@@ -160,8 +125,7 @@ export default function Dashboard() {
                           sessionStorage.setItem(`session-${s.id}-slug`, s.assessment_slug);
                         }
                       }}
-                      className="shrink-0 flex items-center gap-1.5 px-4 py-2 text-white text-xs font-bold rounded-xl shadow-sm shadow-red-900/20 hover:shadow-md hover:-translate-y-0.5 active:translate-y-0 transition-all"
-                      style={{ background: "linear-gradient(135deg, #C0392B 0%, #5b1013 100%)" }}
+                      className="shrink-0 flex items-center gap-1.5 px-4 py-2 text-white text-xs font-semibold rounded-lg bg-elk-red hover:bg-red-700 active:scale-[0.98] transition-all shadow-sm shadow-red-900/15"
                     >
                       <Play size={12} /> Continue
                     </Link>
@@ -174,7 +138,10 @@ export default function Dashboard() {
 
         {/* ── Available Assessments ── */}
         <div>
-          <h2 className="text-base font-bold text-gray-900 dark:text-white/90 mb-4" style={{ fontFamily: "var(--font-display)" }}>
+          <h2
+            className="text-xs font-semibold text-gray-500 dark:text-white/40 uppercase tracking-wide mb-4"
+            style={{ fontFamily: "var(--font-display)" }}
+          >
             Available Assessments
           </h2>
 
@@ -187,64 +154,61 @@ export default function Dashboard() {
               {assessments.map((a: Assessment) => (
                 <div
                   key={a.id}
-                  className="bg-white dark:bg-elk-slate rounded-2xl border border-gray-100 dark:border-gray-700/40 shadow-sm overflow-hidden hover:shadow-md hover:border-gray-200 dark:hover:border-gray-600/50 transition-all flex flex-col"
+                  className="bg-white dark:bg-elk-slate rounded-xl border border-gray-100 dark:border-gray-700/40 p-5 flex flex-col gap-4 shadow-sm hover:shadow-md hover:border-gray-200 dark:hover:border-gray-600/50 transition-all"
                 >
-                  {/* Header band */}
-                  <div
-                    className="px-5 pt-5 pb-4 border-b border-gray-50 dark:border-gray-700/30"
-                    style={{ background: "linear-gradient(135deg, #5b1013 0%, #C0392B 100%)" }}
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <div className="w-8 h-8 rounded-lg bg-white/15 flex items-center justify-center">
-                          <Layers size={15} className="text-white" />
-                        </div>
-                        <span className="text-white/70 text-xs font-bold uppercase tracking-wide">v{a.version}</span>
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="w-8 h-8 rounded-lg bg-red-50 dark:bg-red-950/30 flex items-center justify-center shrink-0">
+                        <Layers size={14} className="text-elk-red" />
                       </div>
-                      {user?.tier && user.tier !== "premium" && (
-                        <span className="inline-flex items-center gap-1 text-xs font-medium text-amber-200 bg-black/20 px-2 py-0.5 rounded-full border border-white/10">
-                          🔒 {user.tier === "free" ? "Core only" : "Basic tier"}
-                        </span>
-                      )}
+                      <div className="min-w-0">
+                        <h3
+                          className="text-base font-bold text-gray-900 dark:text-white/90 leading-snug"
+                          style={{ fontFamily: "var(--font-display)" }}
+                        >
+                          {a.name}
+                        </h3>
+                        <span className="text-xs text-gray-400 dark:text-white/35">v{a.version}</span>
+                      </div>
                     </div>
-                    <h3
-                      className="text-white font-bold text-base mt-3 leading-snug"
-                      style={{ fontFamily: "var(--font-display)" }}
-                    >
-                      {a.name}
-                    </h3>
+                    {user?.tier && user.tier !== "premium" && (
+                      <span className="shrink-0 text-xs text-gray-400 dark:text-white/30 bg-gray-100 dark:bg-white/5 px-2 py-0.5 rounded-full border border-gray-200 dark:border-white/8">
+                        Core only
+                      </span>
+                    )}
                   </div>
 
-                  <div className="p-5 flex flex-col flex-1">
-                    {a.description && (
-                      <p className="text-sm text-gray-500 dark:text-white/50 leading-relaxed flex-1 mb-4">{a.description}</p>
-                    )}
-                    <Link
-                      to={`/assessments/${a.slug}`}
-                      className="flex items-center justify-center gap-2 py-2.5 text-white text-sm font-bold rounded-xl transition-all shadow-sm shadow-red-900/20 hover:shadow-md hover:shadow-red-900/30 hover:-translate-y-0.5 active:translate-y-0"
-                      style={{ background: "linear-gradient(135deg, #C0392B 0%, #5b1013 100%)" }}
-                    >
-                      <Plus size={15} />
-                      Start Assessment
-                    </Link>
-                  </div>
+                  {a.description && (
+                    <p className="text-sm text-gray-500 dark:text-white/45 leading-relaxed">{a.description}</p>
+                  )}
+
+                  <Link
+                    to={`/assessments/${a.slug}`}
+                    className="mt-auto flex items-center justify-center gap-2 py-2.5 text-sm font-semibold text-white rounded-lg bg-elk-red hover:bg-red-700 active:scale-[0.98] transition-all shadow-sm shadow-red-900/15"
+                  >
+                    <Plus size={14} />
+                    Start Assessment
+                  </Link>
                 </div>
               ))}
             </div>
           )}
         </div>
 
-        {/* ── Recent Sessions (card list, no table) ── */}
+        {/* ── Recent Sessions ── */}
         <div>
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-base font-bold text-gray-900 dark:text-white/90" style={{ fontFamily: "var(--font-display)" }}>
+            <h2
+              className="text-xs font-semibold text-gray-500 dark:text-white/40 uppercase tracking-wide"
+              style={{ fontFamily: "var(--font-display)" }}
+            >
               Recent Sessions
             </h2>
             <Link
               to="/sessions"
-              className="text-sm font-semibold text-elk-red hover:text-red-800 flex items-center gap-1 transition-colors"
+              className="text-xs font-semibold text-elk-red hover:text-red-800 flex items-center gap-1 transition-colors"
             >
-              See all <ArrowRight size={14} />
+              See all <ArrowRight size={13} />
             </Link>
           </div>
 
@@ -300,36 +264,38 @@ export default function Dashboard() {
   );
 }
 
-function GradientStatCard({
+function StatCard({
   icon,
   label,
   value,
-  gradient,
+  iconBg,
 }: {
   icon: ReactNode;
   label: string;
   value: ReactNode;
-  gradient: string;
+  iconBg?: string;
 }) {
   return (
-    <div className="grain rounded-2xl p-5 text-white flex flex-col" style={{ background: gradient }}>
-      <div className="w-9 h-9 rounded-xl bg-white/15 flex items-center justify-center mb-3">
+    <div className="bg-white dark:bg-elk-slate rounded-xl border border-gray-100 dark:border-gray-700/40 p-5 flex flex-col gap-3 shadow-sm">
+      <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${iconBg ?? "bg-gray-100 dark:bg-white/6"}`}>
         {icon}
       </div>
-      <div
-        className="text-3xl font-extrabold text-white leading-none mb-1"
-        style={{ fontFamily: "var(--font-display)" }}
-      >
-        {value}
+      <div>
+        <div
+          className="text-2xl font-bold text-gray-900 dark:text-white/90 leading-none mb-1"
+          style={{ fontFamily: "var(--font-display)" }}
+        >
+          {value}
+        </div>
+        <p className="text-xs text-gray-400 dark:text-white/40">{label}</p>
       </div>
-      <p className="text-xs text-white/60">{label}</p>
     </div>
   );
 }
 
 function EmptyCard({ message }: { message: string }) {
   return (
-    <div className="bg-white dark:bg-elk-slate rounded-2xl border border-dashed border-gray-200 dark:border-gray-700/50 p-10 text-center">
+    <div className="bg-white dark:bg-elk-slate rounded-xl border border-dashed border-gray-200 dark:border-gray-700/50 p-10 text-center">
       <p className="text-sm text-gray-400 dark:text-white/30">{message}</p>
     </div>
   );
@@ -339,7 +305,7 @@ function SkeletonGrid() {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
       {[1, 2].map((i) => (
-        <SkeletonBox key={i} className="h-48 rounded-2xl" />
+        <SkeletonBox key={i} className="h-48 rounded-xl" />
       ))}
     </div>
   );

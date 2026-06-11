@@ -137,7 +137,7 @@ function TierStatCard({
   value: ReactNode;
 }) {
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 border-l-4 border-l-elk-gold">
+    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
       <div className="w-9 h-9 rounded-xl bg-amber-50 flex items-center justify-center mb-3">
         {icon}
       </div>

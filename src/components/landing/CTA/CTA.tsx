@@ -1,4 +1,4 @@
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { ArrowRight, CheckCircle, Clock, BarChart2 } from "lucide-react";
 
@@ -10,6 +10,7 @@ const perks = [
 
 export default function CTA() {
   const navigate = useNavigate();
+  const prefersReduced = useReducedMotion();
 
   return (
     <section className="grain relative py-28 overflow-hidden bg-elk-maroon">
@@ -18,8 +19,8 @@ export default function CTA() {
         <motion.div
           className="absolute top-0 left-1/2 -translate-x-1/2 w-[900px] h-[400px] rounded-full blur-3xl opacity-25"
           style={{ background: "radial-gradient(ellipse, #C0392B 0%, transparent 70%)" }}
-          animate={{ opacity: [0.2, 0.35, 0.2] }}
-          transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+          animate={prefersReduced ? { opacity: 0.28 } : { opacity: [0.2, 0.35, 0.2] }}
+          transition={prefersReduced ? { duration: 0 } : { duration: 6, repeat: Infinity, ease: "easeInOut" }}
         />
         <div
           className="absolute inset-0 opacity-[0.03]"
@@ -38,15 +39,11 @@ export default function CTA() {
 
       <div className="relative max-w-4xl mx-auto px-6 text-center">
         <motion.div
-          initial={{ opacity: 0, y: 24 }}
+          initial={prefersReduced ? false : { opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
+          transition={{ duration: prefersReduced ? 0 : 0.6 }}
         >
-          <span className="inline-block text-xs font-bold uppercase tracking-widest text-elk-rose bg-white/8 border border-white/15 px-3 py-1 rounded-full mb-5">
-            Get Started Today
-          </span>
-
           <h2 className="text-4xl md:text-5xl font-extrabold text-white mb-5 leading-tight">
             Start your AI assessment{" "}
             <span
