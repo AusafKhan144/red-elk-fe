@@ -1,15 +1,15 @@
 import { useState } from "react";
 import { Outlet } from "react-router-dom";
-import { Menu } from "lucide-react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import Sidebar from "./Sidebar";
+import Topbar from "./Topbar";
 
 export default function AppLayout() {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const prefersReduced = useReducedMotion();
 
   return (
-    <div className="flex min-h-screen" style={{ background: "var(--bg)" }}>
+    <div className="flex min-h-screen" style={{ background: "var(--bg)", fontFamily: "var(--font-ui)" }}>
       {/* Desktop sidebar — always visible on lg+ */}
       <div className="hidden lg:block">
         <Sidebar />
@@ -50,19 +50,9 @@ export default function AppLayout() {
 
       {/* Main content */}
       <main className="flex-1 lg:ml-60 min-h-screen">
-        {/* Mobile top bar */}
-        <div className="lg:hidden flex items-center gap-3 px-4 py-3 bg-elk-maroon sticky top-0 z-20">
-          <button
-            onClick={() => setDrawerOpen(true)}
-            className="text-white/70 hover:text-white transition-colors"
-            aria-label="Open menu"
-          >
-            <Menu size={22} />
-          </button>
-          <span className="text-white text-sm font-bold">Red Elk</span>
-        </div>
+        <Topbar onMenuClick={() => setDrawerOpen(true)} />
 
-        <div className="max-w-6xl mx-auto px-4 sm:px-8 py-8">
+        <div className="mx-auto w-full px-4 pt-6 pb-16 sm:px-8 sm:pt-7" style={{ maxWidth: 1180 }}>
           <Outlet />
         </div>
       </main>

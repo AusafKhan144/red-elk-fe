@@ -37,79 +37,107 @@ export default function AdminImport() {
     }
   }
 
+  const successColor = "var(--t-leading)";
+
   return (
     <PageWrapper>
-    <div className="space-y-6 max-w-2xl">
-      <div>
-        <h1 className="text-2xl font-extrabold text-gray-900">Import Assessment</h1>
-        <p className="text-sm text-gray-500 mt-0.5">Upload an XLSX file to create or update an assessment.</p>
-      </div>
+      <div className="re-fade-in" style={{ display: "flex", flexDirection: "column", gap: 18, maxWidth: 640 }}>
+        {/* Drop zone */}
+        <div
+          onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
+          onDragLeave={() => setIsDragging(false)}
+          onDrop={onDrop}
+          onClick={() => inputRef.current?.click()}
+          style={{
+            border: "2px dashed " + (isDragging ? "var(--accent)" : "var(--border-strong)"),
+            borderRadius: "var(--radius-lg)",
+            padding: 48,
+            textAlign: "center",
+            cursor: "pointer",
+            background: isDragging ? "var(--accent-soft)" : "var(--surface)",
+            transition: "all .15s var(--ease)",
+          }}
+        >
+          <input
+            ref={inputRef}
+            type="file"
+            accept=".xlsx,.xls"
+            style={{ display: "none" }}
+            onChange={(e) => e.target.files?.[0] && handleFile(e.target.files[0])}
+          />
 
-      {/* Drop zone */}
-      <div
-        onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
-        onDragLeave={() => setIsDragging(false)}
-        onDrop={onDrop}
-        onClick={() => inputRef.current?.click()}
-        className={`border-2 border-dashed rounded-2xl p-12 text-center cursor-pointer transition-all ${
-          isDragging
-            ? "border-elk-red bg-red-50"
-            : "border-gray-200 hover:border-elk-rose hover:bg-gray-50"
-        }`}
-      >
-        <input
-          ref={inputRef}
-          type="file"
-          accept=".xlsx,.xls"
-          className="hidden"
-          onChange={(e) => e.target.files?.[0] && handleFile(e.target.files[0])}
-        />
+          {file ? (
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
+              <FileSpreadsheet size={40} style={{ color: "var(--accent)" }} />
+              <p style={{ fontSize: 14, fontWeight: 600, color: "var(--ink)" }}>{file.name}</p>
+              <p style={{ fontSize: 12, color: "var(--faint)" }}>{(file.size / 1024).toFixed(1)} KB</p>
+              <button
+                type="button"
+                onClick={(e) => { e.stopPropagation(); setFile(null); setResult(null); }}
+                style={{ fontSize: 12, color: "var(--faint)", background: "transparent", border: "none", cursor: "pointer" }}
+                onMouseEnter={(e) => (e.currentTarget.style.color = "var(--accent)")}
+                onMouseLeave={(e) => (e.currentTarget.style.color = "var(--faint)")}
+              >
+                Remove
+              </button>
+            </div>
+          ) : (
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
+              <Upload size={40} style={{ color: "var(--faint)" }} />
+              <p style={{ fontSize: 14, fontWeight: 600, color: "var(--muted)" }}>Drag &amp; drop your XLSX file here</p>
+              <p style={{ fontSize: 12, color: "var(--faint)" }}>or click to browse</p>
+            </div>
+          )}
+        </div>
 
-        {file ? (
-          <div className="flex flex-col items-center gap-3">
-            <FileSpreadsheet size={40} className="text-elk-red" />
-            <p className="text-sm font-semibold text-gray-800">{file.name}</p>
-            <p className="text-xs text-gray-400">{(file.size / 1024).toFixed(1)} KB</p>
-            <button
-              type="button"
-              onClick={(e) => { e.stopPropagation(); setFile(null); setResult(null); }}
-              className="text-xs text-gray-400 hover:text-elk-red transition-colors"
-            >
-              Remove
-            </button>
-          </div>
-        ) : (
-          <div className="flex flex-col items-center gap-3">
-            <Upload size={40} className="text-gray-300" />
-            <p className="text-sm font-semibold text-gray-600">
-              Drag &amp; drop your XLSX file here
-            </p>
-            <p className="text-xs text-gray-400">or click to browse</p>
+        {/* Result banner */}
+        {result && (
+          <div
+            style={{
+              display: "flex",
+              alignItems: "flex-start",
+              gap: 12,
+              padding: 16,
+              borderRadius: "var(--radius)",
+              background: `color-mix(in srgb, ${result.success ? successColor : "var(--accent)"} 8%, var(--surface))`,
+              border: `1px solid color-mix(in srgb, ${result.success ? successColor : "var(--accent)"} 22%, transparent)`,
+              color: result.success ? successColor : "var(--accent)",
+            }}
+          >
+            {result.success ? (
+              <CheckCircle size={18} style={{ flexShrink: 0, marginTop: 1 }} />
+            ) : (
+              <XCircle size={18} style={{ flexShrink: 0, marginTop: 1 }} />
+            )}
+            <p style={{ fontSize: 13.5, margin: 0 }}>{result.message}</p>
           </div>
         )}
+
+        <button
+          onClick={handleImport}
+          disabled={!file || isPending}
+          style={{
+            width: "100%",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 8,
+            padding: "14px 0",
+            background: "var(--accent)",
+            color: "var(--accent-ink)",
+            fontWeight: 700,
+            fontSize: 14,
+            border: "none",
+            borderRadius: "var(--radius-lg)",
+            cursor: !file || isPending ? "not-allowed" : "pointer",
+            opacity: !file || isPending ? 0.5 : 1,
+            transition: "background .18s var(--ease)",
+          }}
+        >
+          <Upload size={18} />
+          {isPending ? "Importing…" : "Import Assessment"}
+        </button>
       </div>
-
-      {/* Result banner */}
-      {result && (
-        <div className={`flex items-start gap-3 p-4 rounded-xl border ${
-          result.success
-            ? "bg-green-50 border-green-200 text-green-800"
-            : "bg-red-50 border-red-200 text-red-800"
-        }`}>
-          {result.success ? <CheckCircle size={18} className="shrink-0 mt-0.5" /> : <XCircle size={18} className="shrink-0 mt-0.5" />}
-          <p className="text-sm">{result.message}</p>
-        </div>
-      )}
-
-      <button
-        onClick={handleImport}
-        disabled={!file || isPending}
-        className="w-full flex items-center justify-center gap-2 py-3.5 bg-elk-red hover:bg-red-700 disabled:opacity-50 text-white font-bold rounded-2xl transition-colors"
-      >
-        <Upload size={18} />
-        {isPending ? "Importing…" : "Import Assessment"}
-      </button>
-    </div>
     </PageWrapper>
   );
 }

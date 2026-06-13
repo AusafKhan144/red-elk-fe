@@ -84,6 +84,36 @@
   --t-developing:  #BC7A1E;
   --t-maturing:    #3C6E8F;
   --t-leading:     #3C7A4E;
+  --sidebar-bg:         #4E1216;
+  --sidebar-ink:        #F7E9E4;
+  --sidebar-muted:      #C79C95;
+  --sidebar-border:     rgba(255,255,255,.10);
+  --sidebar-active-bg:  rgba(255,255,255,.10);
+  --sidebar-active-ink: #FFFFFF;
+  --sidebar-brand-tile: #FBEFE9;
+}
+
+/* Dark variant derived from the Atlas palette (the design is light-only).
+   Sidebar tokens are not overridden — the maroon rail is already dark. */
+html.dark {
+  --bg:            #181210;
+  --bg-tint:       #201813;
+  --surface:       #221A15;
+  --surface-2:     #29201A;
+  --surface-inset: #1B1410;
+  --border:        #392E24;
+  --border-strong: #4C3E30;
+  --ink:           #F1E9DD;
+  --muted:         #B5A68F;
+  --faint:         #82745F;
+  --accent-soft:   #43201E;
+  --card-shadow:       0 1px 2px rgba(0,0,0,.50), 0 10px 30px -18px rgba(0,0,0,.70);
+  --card-shadow-hover: 0 3px 6px rgba(0,0,0,.50), 0 18px 40px -20px rgba(0,0,0,.75);
+  /* tier colors brightened one step for contrast on dark surfaces */
+  --t-nascent:     #D2474E;
+  --t-developing:  #D2933B;
+  --t-maturing:    #5E92B5;
+  --t-leading:     #58A06C;
 }
 
 /* ─── App-interior utility classes ──────────────────────────────── */
@@ -119,12 +149,36 @@
   border-radius: 999px;
   flex-shrink: 0;
 }
+.re-sidenav-item {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  width: 100%;
+  padding: 9px 11px;
+  border-radius: 10px;
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--sidebar-muted);
+  transition: all .15s var(--ease);
+}
+.re-sidenav-item:hover {
+  background: rgba(255,255,255,.06);
+  color: var(--sidebar-ink);
+}
+.re-sidenav-item.active {
+  background: var(--sidebar-active-bg);
+  color: var(--sidebar-active-ink);
+  font-weight: 600;
+}
 .re-fade-in {
   animation: reUp .45s var(--ease) both;
 }
 @keyframes reUp {
   from { transform: translateY(7px); opacity: 0; }
   to   { transform: none;            opacity: 1; }
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }
 
 /* ─── Custom utilities ───────────────────────────────────────────── */

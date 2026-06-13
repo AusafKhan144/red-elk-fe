@@ -1,116 +1,169 @@
-import { useParams, useNavigate, Link } from "react-router-dom";
-import { CheckCircle, Clock, ArrowRight, ChevronRight, FileText } from "lucide-react";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { FileText, ArrowRight, Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import { useAssessment } from "../../hooks/useAssessments";
+import { useAssessments } from "../../hooks/useAssessments";
 import { useStartSession } from "../../hooks/useSession";
+import PageWrapper from "../../components/common/PageWrapper";
+import type { Assessment } from "../../types/api";
 
-export default function AssessmentIntro() {
-  const { slug } = useParams<{ slug: string }>();
+/**
+ * Assessment catalog — the "Take assessment" screen.
+ * Lists every published assessment; choosing one starts a fresh session and
+ * drops the user straight into the quiz.
+ */
+export default function AssessmentCatalog() {
   const navigate = useNavigate();
-  const { data: assessment, isLoading } = useAssessment(slug!);
-  const { mutateAsync: startSession, isPending } = useStartSession();
+  const { data: assessments, isLoading } = useAssessments();
+  const { mutateAsync: startSession } = useStartSession();
+  const [startingSlug, setStartingSlug] = useState<string | null>(null);
 
-  async function handleStart() {
+  async function handleStart(slug: string) {
+    if (startingSlug) return;
+    setStartingSlug(slug);
     try {
-      const session = await startSession(slug!);
-      sessionStorage.setItem(`session-${session.id}-slug`, slug!);
+      const session = await startSession(slug);
+      // Quiz resume pattern: the slug must be in sessionStorage before navigating.
+      sessionStorage.setItem(`session-${session.id}-slug`, slug);
       navigate(`/sessions/${session.id}/quiz`);
     } catch {
       toast.error("Failed to start session. Please try again.");
+      setStartingSlug(null);
     }
   }
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center py-24">
-        <div className="w-8 h-8 border-4 border-elk-red border-t-transparent rounded-full animate-spin" />
-      </div>
-    );
-  }
-
-  if (!assessment) return null;
-
   return (
-    <div className="max-w-2xl mx-auto space-y-5">
-      {/* Breadcrumb */}
-      <nav className="flex items-center gap-1.5 text-sm">
-        <Link to="/dashboard" className="text-gray-400 hover:text-elk-red transition-colors font-medium">
-          Dashboard
-        </Link>
-        <ChevronRight size={14} className="text-gray-300" />
-        <span className="text-gray-700 font-semibold">{assessment.name}</span>
-      </nav>
-
-      {/* Hero card */}
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-        {/* Top accent bar */}
-        <div className="h-1.5 bg-gradient-to-r from-elk-red via-elk-rose to-elk-red" />
-        <div className="p-8">
-          <div className="flex items-start justify-between gap-4 mb-4">
-            <div className="w-12 h-12 rounded-xl bg-red-50 border border-red-100 flex items-center justify-center shrink-0">
-              <FileText size={22} className="text-elk-red" />
-            </div>
-            <span className="inline-flex items-center px-3 py-1 bg-gray-50 border border-gray-100 rounded-full text-xs font-bold text-gray-500 uppercase tracking-wide">
-              v{assessment.version}
-            </span>
-          </div>
-
-          <h1 className="text-2xl font-extrabold text-gray-900 mb-3 leading-tight">
-            {assessment.name}
-          </h1>
-          <p className="text-gray-500 leading-relaxed mb-6">{assessment.description}</p>
-
-          {(() => {
-            const totalQ = assessment.dimensions.reduce((sum, d) => sum + d.questions.length, 0);
-            return (
-              <div className="flex items-center gap-5 text-sm text-gray-400">
-                <div className="flex items-center gap-1.5">
-                  <Clock size={14} className="text-elk-rose" />
-                  <span>{totalQ} questions across {assessment.dimensions.length} dimensions</span>
-                </div>
-                <div className="w-1 h-1 rounded-full bg-gray-200" />
-                <span>~{Math.ceil(totalQ * 0.5)} min</span>
-              </div>
-            );
-          })()}
+    <PageWrapper>
+      <div className="re-fade-in" style={{ display: "flex", flexDirection: "column", gap: 22 }}>
+        {/* Intro hero */}
+        <div className="re-card" style={{ padding: 24 }}>
+          <span className="re-eyebrow">Take an assessment</span>
+          <h2
+            style={{
+              fontSize: 24, fontWeight: 800, margin: "8px 0 8px", lineHeight: 1.1,
+              color: "var(--ink)", letterSpacing: "-.015em",
+            }}
+          >
+            Choose a framework to begin
+          </h2>
+          <p style={{ margin: 0, fontSize: 13.5, color: "var(--muted)", lineHeight: 1.55, maxWidth: 560 }}>
+            Each assessment scores your organisation across its capability dimensions. Pick one to
+            start — your answers save automatically and you can pause and resume any time.
+          </p>
         </div>
+
+        {/* Catalog */}
+        {isLoading ? (
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: 14 }}>
+            {[1, 2, 3].map((i) => (
+              <div key={i} style={{ height: 160, borderRadius: "var(--radius-lg)", background: "var(--surface-inset)" }} />
+            ))}
+          </div>
+        ) : !assessments || assessments.length === 0 ? (
+          <div
+            style={{
+              padding: "48px 24px", textAlign: "center",
+              border: "1px dashed var(--border)", borderRadius: "var(--radius-lg)",
+            }}
+          >
+            <p style={{ fontSize: 13.5, color: "var(--faint)", margin: 0 }}>No assessments are available yet.</p>
+          </div>
+        ) : (
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: 14 }}>
+            {assessments.map((a) => (
+              <AssessmentCard
+                key={a.id}
+                assessment={a}
+                starting={startingSlug === a.slug}
+                disabled={!!startingSlug && startingSlug !== a.slug}
+                onStart={() => handleStart(a.slug)}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+    </PageWrapper>
+  );
+}
+
+function AssessmentCard({
+  assessment,
+  starting,
+  disabled,
+  onStart,
+}: {
+  assessment: Assessment;
+  starting: boolean;
+  disabled: boolean;
+  onStart: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onStart}
+      disabled={disabled || starting}
+      className="re-card re-card-hover"
+      style={{
+        padding: 18,
+        display: "flex",
+        flexDirection: "column",
+        gap: 12,
+        textAlign: "left",
+        cursor: disabled ? "not-allowed" : "pointer",
+        opacity: disabled ? 0.55 : 1,
+        fontFamily: "var(--font-ui)",
+        transition: "all .15s var(--ease)",
+      }}
+    >
+      <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 10 }}>
+        <span
+          style={{
+            width: 40, height: 40, borderRadius: 11, flexShrink: 0,
+            display: "flex", alignItems: "center", justifyContent: "center",
+            color: "var(--accent)", background: "var(--accent-soft)",
+          }}
+        >
+          <FileText size={20} />
+        </span>
+        <span
+          style={{
+            fontFamily: "var(--font-mono)", fontSize: 11, fontWeight: 600,
+            color: "var(--faint)", background: "var(--surface-inset)",
+            padding: "3px 8px", borderRadius: 999,
+          }}
+        >
+          v{assessment.version}
+        </span>
       </div>
 
-      {/* What to expect */}
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-8">
-        <h2 className="text-base font-bold text-gray-900 mb-5">What to expect</h2>
-        <ul className="space-y-3.5">
-          {[
-            "Rate each statement on a scale of 1–5",
-            "Your answers are saved automatically as you go",
-            "You can pause and resume at any time",
-            "Get your full scored report once you submit",
-            "Download a PDF with your results and roadmap",
-          ].map((item) => (
-            <li key={item} className="flex items-start gap-3 text-sm text-gray-600">
-              <CheckCircle size={16} className="text-elk-red mt-0.5 shrink-0" />
-              {item}
-            </li>
-          ))}
-        </ul>
+      <div style={{ flex: 1 }}>
+        <h3 style={{ fontSize: 15.5, fontWeight: 700, color: "var(--ink)", marginBottom: 4, letterSpacing: "-.01em" }}>
+          {assessment.name}
+        </h3>
+        {assessment.description && (
+          <p style={{ margin: 0, fontSize: 12.5, color: "var(--muted)", lineHeight: 1.5 }}>{assessment.description}</p>
+        )}
       </div>
 
-      <button
-        onClick={handleStart}
-        disabled={isPending}
-        className="w-full flex items-center justify-center gap-2.5 py-4 bg-elk-red hover:bg-red-800 disabled:opacity-60 disabled:cursor-not-allowed text-white font-bold rounded-2xl transition-all text-base shadow-lg shadow-red-900/25 hover:shadow-xl hover:shadow-red-900/35 hover:-translate-y-0.5 active:translate-y-0"
+      <span
+        style={{
+          display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 7,
+          marginTop: 2, padding: "9px 14px", borderRadius: "var(--radius)",
+          background: starting ? "var(--surface-inset)" : "var(--accent)",
+          color: starting ? "var(--muted)" : "var(--accent-ink)",
+          fontWeight: 600, fontSize: 13,
+        }}
       >
-        {isPending ? (
+        {starting ? (
           <>
-            <div className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
-            Starting…
+            <Loader2 size={14} style={{ animation: "spin 1s linear infinite" }} /> Starting…
           </>
         ) : (
           <>
-            Start Assessment <ArrowRight size={18} />
+            Start assessment <ArrowRight size={14} />
           </>
         )}
-      </button>
-    </div>
+      </span>
+    </button>
   );
 }

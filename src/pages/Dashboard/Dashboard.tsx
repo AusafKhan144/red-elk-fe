@@ -1,23 +1,16 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { Layers, BarChart3, Hourglass, Award, LineChart, Play, ArrowRight, BarChart2, Compass } from "lucide-react";
 import { useAssessments } from "../../hooks/useAssessments";
 import { useSessions } from "../../hooks/useSession";
-import { useReportStatic } from "../../hooks/useReportStatic";
 import { useAuth } from "../../context/AuthContext";
 import ScoreDial from "../../components/ScoreDial";
 import Sparkline from "../../components/Sparkline";
 import TierChip from "../../components/TierChip";
 import DimensionBar from "../../components/DimensionBar";
-import RadarChart from "../../components/RadarChart";
+import Radar from "../../components/Radar";
 import type { Session, MaturityLevel, RadarPoint } from "../../types/api";
 import PageWrapper from "../../components/common/PageWrapper";
-
-function tierOfScore(score: number): MaturityLevel {
-  if (score < 30) return "nascent";
-  if (score < 55) return "developing";
-  if (score < 75) return "maturing";
-  return "leading";
-}
 
 function tierColorVar(tier: MaturityLevel): string {
   return `var(--t-${tier})`;
@@ -35,12 +28,12 @@ function SectionHead({ title, sub, action }: { title: string; sub?: string; acti
   );
 }
 
-function MetricCard({ label, value, sub, icon }: { label: string; value: React.ReactNode; sub?: string; icon: string }) {
+function MetricCard({ label, value, sub, icon: Icon }: { label: string; value: React.ReactNode; sub?: string; icon: React.ElementType }) {
   return (
     <div className="re-card" style={{ padding: "16px 18px", display: "flex", flexDirection: "column", gap: 10 }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <span className="re-eyebrow">{label}</span>
-        <span style={{ fontSize: 16 }}>{icon}</span>
+        <span style={{ color: "var(--faint)", display: "flex" }}><Icon size={15} /></span>
       </div>
       <div style={{ fontSize: 32, fontWeight: 700, lineHeight: 1, color: "var(--ink)", fontVariantNumeric: "tabular-nums" }}>
         {value}
@@ -52,6 +45,13 @@ function MetricCard({ label, value, sub, icon }: { label: string; value: React.R
   );
 }
 
+const TIERS: { key: MaturityLevel; label: string; range: string; color: string }[] = [
+  { key: "nascent",    label: "Nascent",    range: "0–30",   color: "var(--t-nascent)"    },
+  { key: "developing", label: "Developing", range: "30–55",  color: "var(--t-developing)" },
+  { key: "maturing",   label: "Maturing",   range: "55–75",  color: "var(--t-maturing)"   },
+  { key: "leading",    label: "Leading",    range: "75–100", color: "var(--t-leading)"    },
+];
+
 export default function Dashboard() {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -61,22 +61,22 @@ export default function Dashboard() {
 
   const inProgress: Session[] = sessions?.filter((s) => s.status === "in_progress") ?? [];
   const completed: Session[] = sessions?.filter((s) => s.status === "completed") ?? [];
-  const latestCompleted = completed[0];
-
-  const { data: latestReport } = useReportStatic(latestCompleted?.id);
-
-  const overallScore = latestReport?.overall_score ?? null;
-  const tier = overallScore !== null ? tierOfScore(overallScore) : null;
 
   const resume = inProgress[0] ?? null;
 
+  // Use maturity_summary from the user profile — no extra report fetch needed
+  const summary = user?.maturity_summary ?? null;
+  const overallScore = summary?.overall_score ?? null;
+  const tier = summary?.tier_result ?? null;
+  const radarData: RadarPoint[] = summary?.radar_data ?? [];
+  const reportSessionId = summary?.as_of_session_id ?? null;
 
-  const TIERS: { key: MaturityLevel; label: string; range: string; color: string }[] = [
-    { key: "nascent",    label: "Nascent",    range: "0–30",   color: "var(--t-nascent)"    },
-    { key: "developing", label: "Developing", range: "30–55",  color: "var(--t-developing)" },
-    { key: "maturing",   label: "Maturing",   range: "55–75",  color: "var(--t-maturing)"   },
-    { key: "leading",    label: "Leading",    range: "75–100", color: "var(--t-leading)"    },
-  ];
+  // Real sparkline scores from completed sessions (oldest→newest)
+  const sparklineScores = completed
+    .slice(0, 8)
+    .reverse()
+    .map((s) => s.score ?? 0)
+    .filter((v) => v > 0);
 
   return (
     <PageWrapper>
@@ -97,11 +97,11 @@ export default function Dashboard() {
                   <p style={{ margin: "0 0 14px", fontSize: 13.5, color: "var(--muted)", lineHeight: 1.5 }}>
                     Based on your most recent completed assessment across all dimensions.
                   </p>
-                  {completed.length >= 2 && (
+                  {sparklineScores.length >= 2 && (
                     <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
                       <div style={{ fontSize: 11.5, color: "var(--faint)" }}>Score trend</div>
                       <Sparkline
-                        data={completed.slice(0, 8).reverse().map((_, i) => 50 + i * 3)}
+                        data={sparklineScores}
                         width={120} height={30}
                         color={tier ? tierColorVar(tier) : "var(--accent)"}
                       />
@@ -135,10 +135,13 @@ export default function Dashboard() {
                     <h3 style={{ fontSize: 15, fontWeight: 600, marginBottom: 10, color: "var(--ink)" }}>
                       {resume.assessment_name ?? "Assessment"}
                     </h3>
+                    {/* Real progress from API */}
                     <div style={{ height: 6, borderRadius: 999, background: "var(--surface-inset)", overflow: "hidden" }}>
-                      <div style={{ width: "35%", height: "100%", background: "var(--accent)", borderRadius: 999 }} />
+                      <div style={{ width: `${resume.progress_pct ?? 0}%`, height: "100%", background: "var(--accent)", borderRadius: 999 }} />
                     </div>
-                    <div style={{ fontSize: 11.5, color: "var(--muted)", marginTop: 6 }}>In progress</div>
+                    <div style={{ fontSize: 11.5, color: "var(--muted)", marginTop: 6 }}>
+                      {resume.progress_pct != null ? `${resume.progress_pct}% complete` : "In progress"}
+                    </div>
                   </div>
                   <Link
                     to={`/sessions/${resume.id}/quiz`}
@@ -156,7 +159,7 @@ export default function Dashboard() {
                       transition: "background .15s",
                     }}
                   >
-                    ▶ Resume assessment
+                    <Play size={14} fill="currentColor" /> Resume assessment
                   </Link>
                 </>
               ) : (
@@ -164,20 +167,18 @@ export default function Dashboard() {
                   <p style={{ fontSize: 13, color: "var(--faint)", textAlign: "center", margin: 0 }}>
                     No assessments in progress
                   </p>
-                  {assessments && assessments.length > 0 && (
-                    <Link
-                      to={`/assessments/${assessments[0].slug}`}
-                      style={{
-                        display: "inline-flex", alignItems: "center", gap: 6,
-                        padding: "8px 16px", borderRadius: "var(--radius)",
-                        background: "var(--surface-inset)", color: "var(--ink)",
-                        fontWeight: 600, fontSize: 13, textDecoration: "none",
-                        border: "1px solid var(--border)",
-                      }}
-                    >
-                      + Start an assessment
-                    </Link>
-                  )}
+                  <Link
+                    to="/assessments"
+                    style={{
+                      display: "inline-flex", alignItems: "center", gap: 6,
+                      padding: "8px 16px", borderRadius: "var(--radius)",
+                      background: "var(--surface-inset)", color: "var(--ink)",
+                      fontWeight: 600, fontSize: 13, textDecoration: "none",
+                      border: "1px solid var(--border)",
+                    }}
+                  >
+                    + Start an assessment
+                  </Link>
                 </div>
               )}
             </div>
@@ -186,9 +187,9 @@ export default function Dashboard() {
 
         {/* ── Metric cards ── */}
         <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 14 }}>
-          <MetricCard label="Sessions done"   value={loadingS ? "—" : completed.length}          icon="📋" />
-          <MetricCard label="Assessments"     value={loadingA ? "—" : (assessments?.length ?? 0)} icon="📊" />
-          <MetricCard label="In progress"     value={loadingS ? "—" : inProgress.length}          icon="⏳" />
+          <MetricCard label="Sessions done"   value={loadingS ? "—" : completed.length}          icon={Layers} />
+          <MetricCard label="Assessments"     value={loadingA ? "—" : (assessments?.length ?? 0)} icon={BarChart3} />
+          <MetricCard label="In progress"     value={loadingS ? "—" : inProgress.length}          icon={Hourglass} />
           <MetricCard
             label="Current tier"
             value={
@@ -198,12 +199,12 @@ export default function Dashboard() {
                   </span>
                 : "—"
             }
-            icon="🏅"
+            icon={Award}
           />
         </div>
 
-        {/* ── Dimension matrix (only when report data available) ── */}
-        {latestReport && (
+        {/* ── Dimension matrix (only when maturity summary available) ── */}
+        {radarData.length > 0 && (
           <div className="re-card" style={{ padding: 22 }}>
             <SectionHead
               title="Maturity by dimension"
@@ -215,7 +216,7 @@ export default function Dashboard() {
                     background: "var(--surface-inset)", borderRadius: "var(--radius)",
                     border: "1px solid var(--border)",
                   }}>
-                    {([["bars", "≡"], ["radar", "◎"]] as const).map(([id, icon]) => (
+                    {([["bars", BarChart2], ["radar", Compass]] as const).map(([id, Icon]) => (
                       <button
                         key={id}
                         title={id === "bars" ? "Bar chart" : "Radar chart"}
@@ -227,26 +228,28 @@ export default function Dashboard() {
                           background: dimView === id ? "var(--surface)" : "transparent",
                           boxShadow: dimView === id ? "var(--card-shadow)" : "none",
                           color: dimView === id ? "var(--ink)" : "var(--faint)",
-                          fontSize: 13, fontWeight: 600,
+                          display: "flex",
                           transition: "all .15s var(--ease)",
                         }}
                       >
-                        {icon}
+                        <Icon size={14} />
                       </button>
                     ))}
                   </div>
-                  <Link
-                    to={`/sessions/${latestCompleted?.id}/report`}
-                    style={{
-                      display: "inline-flex", alignItems: "center", gap: 6,
-                      padding: "7px 13px", borderRadius: "var(--radius)",
-                      background: "var(--surface-inset)", color: "var(--ink)",
-                      fontWeight: 600, fontSize: 12.5, textDecoration: "none",
-                      border: "1px solid var(--border)",
-                    }}
-                  >
-                    Full report →
-                  </Link>
+                  {reportSessionId && (
+                    <Link
+                      to={`/sessions/${reportSessionId}/report`}
+                      style={{
+                        display: "inline-flex", alignItems: "center", gap: 6,
+                        padding: "7px 13px", borderRadius: "var(--radius)",
+                        background: "var(--surface-inset)", color: "var(--ink)",
+                        fontWeight: 600, fontSize: 12.5, textDecoration: "none",
+                        border: "1px solid var(--border)",
+                      }}
+                    >
+                      Full report <ArrowRight size={13} />
+                    </Link>
+                  )}
                 </div>
               }
             />
@@ -263,16 +266,14 @@ export default function Dashboard() {
                   ))}
                 </div>
                 <div style={{ borderTop: "1px solid var(--border)" }}>
-                  {latestReport.radar_data.map((d: RadarPoint, i: number) => (
+                  {radarData.map((d: RadarPoint, i: number) => (
                     <DimensionBar key={d.dimension} label={d.label} score={d.score} delay={i * 90} />
                   ))}
                 </div>
               </>
             ) : (
               <div style={{ display: "flex", justifyContent: "center", padding: "10px 0" }}>
-                <div style={{ width: "100%", maxWidth: 400 }}>
-                  <RadarChart data={latestReport.radar_data} />
-                </div>
+                <Radar data={radarData} size={288} color={tier ? tierColorVar(tier) : "var(--accent)"} />
               </div>
             )}
           </div>
@@ -294,7 +295,7 @@ export default function Dashboard() {
                     key={a.id}
                     className="re-card re-card-hover"
                     style={{ padding: 16, display: "flex", flexDirection: "column", gap: 10, cursor: "pointer" }}
-                    onClick={() => navigate(`/assessments/${a.slug}`)}
+                    onClick={() => navigate("/assessments")}
                   >
                     <div>
                       <h3 style={{ fontSize: 14, fontWeight: 600, marginBottom: 4, color: "var(--ink)" }}>{a.name}</h3>
@@ -326,7 +327,7 @@ export default function Dashboard() {
                     border: "1px solid var(--border)",
                   }}
                 >
-                  All →
+                  All <ArrowRight size={13} />
                 </Link>
               }
             />
@@ -351,9 +352,9 @@ export default function Dashboard() {
                       width: 38, height: 38, borderRadius: 10,
                       background: "var(--surface-inset)",
                       display: "flex", alignItems: "center", justifyContent: "center",
-                      color: "var(--muted)", flexShrink: 0, fontSize: 16,
+                      color: "var(--muted)", flexShrink: 0,
                     }}>
-                      📈
+                      <LineChart size={17} />
                     </div>
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{
@@ -366,7 +367,14 @@ export default function Dashboard() {
                         {new Date(s.started_at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
                       </div>
                     </div>
-                    {s.tier_at_time && <TierChip tier={s.tier_at_time as MaturityLevel} size="sm" />}
+                    <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
+                      {s.score != null && (
+                        <span style={{ fontFamily: "var(--font-mono)", fontSize: 13, fontWeight: 700, color: "var(--ink)" }}>
+                          {Math.round(s.score)}
+                        </span>
+                      )}
+                      {s.tier_result && <TierChip tier={s.tier_result} size="sm" />}
+                    </div>
                   </Link>
                 ))}
               </div>

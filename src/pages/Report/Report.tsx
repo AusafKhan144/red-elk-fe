@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
-import { Download, Loader2, RefreshCw, AlertTriangle } from "lucide-react";
+import { Download, Loader2, RefreshCw, AlertTriangle, TrendingUp, Flag, Award, Target, ArrowRight, Play } from "lucide-react";
 import { useReport } from "../../hooks/useReport";
 import TierChip from "../../components/TierChip";
 import ScoreDial from "../../components/ScoreDial";
-import RadarChart from "../../components/RadarChart";
+import Radar from "../../components/Radar";
 import PageWrapper from "../../components/common/PageWrapper";
 import type { MaturityLevel, RadarPoint } from "../../types/api";
 
@@ -76,7 +76,7 @@ function MaturityTrack({ d, delay = 0 }: { d: RadarPoint; delay?: number }) {
   );
 }
 
-function GlanceRow({ icon, tint, label, name, value, last }: { icon: string; tint: string; label: string; name: string; value: string; last?: boolean }) {
+function GlanceRow({ icon: Icon, tint, label, name, value, last }: { icon: React.ElementType; tint: string; label: string; name: string; value: string; last?: boolean }) {
   return (
     <div style={{
       display: "flex", alignItems: "center", gap: 12,
@@ -86,9 +86,8 @@ function GlanceRow({ icon, tint, label, name, value, last }: { icon: string; tin
         width: 32, height: 32, borderRadius: 9, flexShrink: 0,
         display: "flex", alignItems: "center", justifyContent: "center",
         color: tint, background: `color-mix(in srgb, ${tint} 12%, var(--surface))`,
-        fontSize: 15,
       }}>
-        {icon}
+        <Icon size={16} />
       </span>
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ fontSize: 11, color: "var(--faint)" }}>{label}</div>
@@ -102,7 +101,6 @@ function GlanceRow({ icon, tint, label, name, value, last }: { icon: string; tin
 export default function Report() {
   const { sessionId } = useParams<{ sessionId: string }>();
   const { data: report, isLoading, timedOut, resetPolling } = useReport(sessionId!);
-  const assessmentSlug = sessionStorage.getItem(`session-${sessionId}-slug`);
 
   if (isLoading || (!report && !timedOut)) {
     return (
@@ -206,19 +204,17 @@ export default function Report() {
                   Generating PDF…
                 </div>
               )}
-              {assessmentSlug && (
-                <Link
-                  to={`/assessments/${assessmentSlug}`}
-                  style={{
-                    display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 6,
-                    padding: "8px 16px", borderRadius: "var(--radius)",
-                    border: "1px solid var(--border-strong)", background: "var(--surface)",
-                    color: "var(--ink)", fontWeight: 600, fontSize: 13, textDecoration: "none",
-                  }}
-                >
-                  ↺ Retake
-                </Link>
-              )}
+              <Link
+                to="/assessments"
+                style={{
+                  display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 6,
+                  padding: "8px 16px", borderRadius: "var(--radius)",
+                  border: "1px solid var(--border-strong)", background: "var(--surface)",
+                  color: "var(--ink)", fontWeight: 600, fontSize: 13, textDecoration: "none",
+                }}
+              >
+                <Play size={13} fill="currentColor" /> Retake
+              </Link>
             </div>
           </div>
 
@@ -263,31 +259,60 @@ export default function Report() {
           <div className="re-card" style={{ padding: 22 }}>
             <div style={{ marginBottom: 14 }}>
               <h2 style={{ fontSize: 15, fontWeight: 700, color: "var(--ink)" }}>Capability footprint</h2>
-              <p style={{ margin: "4px 0 0", fontSize: 12.5, color: "var(--muted)" }}>Shape across all dimensions, scored 0–100.</p>
+              <p style={{ margin: "4px 0 0", fontSize: 12.5, color: "var(--muted)" }}>
+                {report.previous_radar_data
+                  ? "Current attempt (solid) vs. previous attempt (dashed), scored 0–100."
+                  : "Shape across all dimensions, scored 0–100."}
+              </p>
             </div>
-            <RadarChart data={report.radar_data} />
+            <div style={{ display: "flex", justifyContent: "center", alignItems: "center", padding: "10px 0 4px" }}>
+              <Radar data={report.radar_data} previousData={report.previous_radar_data} size={340} color={tierColorVar(tier)} />
+            </div>
+            <div style={{ display: "flex", justifyContent: "center", gap: 22, paddingTop: 6 }}>
+              <span style={{ display: "inline-flex", alignItems: "center", gap: 7, fontSize: 11.5, color: "var(--muted)" }}>
+                <span style={{ width: 20, height: 3, borderRadius: 2, background: tierColorVar(tier), display: "inline-block" }} />
+                Current
+              </span>
+              {report.previous_radar_data && (
+                <span style={{ display: "inline-flex", alignItems: "center", gap: 7, fontSize: 11.5, color: "var(--muted)" }}>
+                  <svg width="20" height="3"><line x1="0" y1="1.5" x2="20" y2="1.5" stroke="var(--faint)" strokeWidth="1.5" strokeDasharray="3,2.5" /></svg>
+                  Previous
+                </span>
+              )}
+            </div>
           </div>
 
           <div className="re-card" style={{ padding: 22, display: "flex", flexDirection: "column" }}>
             <h2 style={{ fontSize: 15, fontWeight: 700, color: "var(--ink)", marginBottom: 14 }}>At a glance</h2>
             <div style={{ display: "flex", flexDirection: "column" }}>
               <GlanceRow
-                icon="📈" tint="var(--t-leading)"
+                icon={TrendingUp} tint="var(--t-leading)"
                 label="Strongest capability" name={strongest?.label ?? "—"} value={String(strongest?.score ?? "—")}
               />
               <GlanceRow
-                icon="🎯" tint="var(--accent)"
+                icon={Flag} tint="var(--accent)"
                 label="Biggest opportunity" name={weakest?.label ?? "—"} value={String(weakest?.score ?? "—")}
               />
               <GlanceRow
-                icon="🏅" tint="var(--t-maturing)"
+                icon={Award} tint="var(--t-maturing)"
                 label="Overall score" name="Across all dimensions" value={`${report.overall_score}/100`}
               />
               <GlanceRow
-                icon="⭐" tint="var(--t-developing)"
+                icon={Target} tint="var(--t-developing)"
                 label="Maturity tier" name={TIERS[tierIdx]?.label ?? "—"} value={TIERS[tierIdx]?.range ?? "—"} last
               />
             </div>
+            <Link
+              to="/benchmarks"
+              style={{
+                marginTop: "auto", display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+                padding: "9px 16px", borderRadius: "var(--radius)",
+                background: "var(--surface-inset)", color: "var(--ink)",
+                border: "1px solid var(--border)", fontWeight: 600, fontSize: 13, textDecoration: "none",
+              }}
+            >
+              <Target size={14} /> Compare to peers
+            </Link>
           </div>
         </div>
 
@@ -356,9 +381,9 @@ export default function Report() {
               width: 46, height: 46, borderRadius: 12,
               background: "var(--accent-soft)", color: "var(--accent)",
               display: "flex", alignItems: "center", justifyContent: "center",
-              flexShrink: 0, fontSize: 22,
+              flexShrink: 0,
             }}>
-              🎯
+              <Flag size={22} />
             </div>
             <div style={{ flex: 1 }}>
               <span className="re-eyebrow" style={{ color: "var(--accent)" }}>Top priority</span>
@@ -373,7 +398,7 @@ export default function Report() {
               </p>
             </div>
             <Link
-              to="/dashboard"
+              to="/action-plan"
               style={{
                 display: "inline-flex", alignItems: "center", gap: 8, whiteSpace: "nowrap",
                 padding: "9px 16px", borderRadius: "var(--radius)",
@@ -381,7 +406,7 @@ export default function Report() {
                 fontWeight: 600, fontSize: 13.5, textDecoration: "none",
               }}
             >
-              Back to dashboard →
+              View action plan <ArrowRight size={14} />
             </Link>
           </div>
         )}

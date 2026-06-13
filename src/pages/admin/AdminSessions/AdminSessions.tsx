@@ -3,7 +3,23 @@ import { Search, ChevronLeft, ChevronRight, Download } from "lucide-react";
 import { toast } from "sonner";
 import { useAdminSessions, exportAdminSessions } from "../../../hooks/useAdmin";
 import SubscriptionBadge from "../../../components/SubscriptionBadge";
+import StatusChip from "../../../components/StatusChip";
 import PageWrapper from "../../../components/common/PageWrapper";
+
+const softButton: React.CSSProperties = {
+  display: "inline-flex",
+  alignItems: "center",
+  gap: 7,
+  padding: "8px 14px",
+  borderRadius: "var(--radius)",
+  background: "var(--surface-inset)",
+  border: "1px solid var(--border)",
+  color: "var(--ink)",
+  fontWeight: 600,
+  fontSize: 13,
+  cursor: "pointer",
+  transition: "all .15s var(--ease)",
+};
 
 export default function AdminSessions() {
   const [page, setPage] = useState(0);
@@ -32,119 +48,129 @@ export default function AdminSessions() {
 
   return (
     <PageWrapper>
-    <div className="space-y-6">
-      <div className="flex items-center justify-between gap-4 flex-wrap">
-        <div>
-          <h1
-            className="text-2xl font-extrabold text-gray-900"
-            style={{ fontFamily: "var(--font-display)" }}
-          >
-            All Sessions
-          </h1>
-          <p className="text-sm text-gray-500 mt-0.5">Every assessment session across the platform.</p>
-        </div>
-        <div className="flex items-center gap-3">
-          <button
-            onClick={handleExport}
-            disabled={exporting}
-            className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-gray-600 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 hover:border-gray-300 disabled:opacity-50 transition-all"
-          >
+      <div className="re-fade-in" style={{ display: "flex", flexDirection: "column", gap: 18 }}>
+        {/* Toolbar */}
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-end", gap: 10, flexWrap: "wrap" }}>
+          <button onClick={handleExport} disabled={exporting} style={{ ...softButton, opacity: exporting ? 0.5 : 1 }}>
             <Download size={14} />
             {exporting ? "Exporting…" : "Export CSV"}
           </button>
-          <div className="relative">
-            <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+          <div style={{ position: "relative" }}>
+            <Search
+              size={15}
+              style={{ position: "absolute", left: 11, top: "50%", transform: "translateY(-50%)", color: "var(--faint)" }}
+            />
             <input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search by user or assessment ID…"
-              className="pl-9 pr-4 py-2 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-elk-rose w-64"
+              style={{
+                width: 260,
+                padding: "8px 12px 8px 32px",
+                fontSize: 13,
+                background: "var(--surface)",
+                border: "1px solid var(--border)",
+                borderRadius: "var(--radius)",
+                color: "var(--ink)",
+                outline: "none",
+                fontFamily: "var(--font-ui)",
+              }}
             />
           </div>
         </div>
-      </div>
 
-      {isLoading ? (
-        <div className="flex justify-center py-16">
-          <div className="w-8 h-8 border-4 border-elk-red border-t-transparent rounded-full animate-spin" />
-        </div>
-      ) : (
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-          <table className="w-full text-sm">
-            <thead className="bg-gray-50 border-b border-gray-100">
-              <tr>
-                {["User ID", "Assessment ID", "Tier", "Started", "Status"].map((h) => (
-                  <th key={h} className="px-5 py-3 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">
-                    {h}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-50">
-              {filtered.length === 0 ? (
-                <tr>
-                  <td colSpan={5} className="px-5 py-10 text-center text-sm text-gray-400">
-                    No sessions found.
-                  </td>
-                </tr>
-              ) : (
-                filtered.map((s) => (
-                  <tr key={s.id} className="hover:bg-gray-50/80 transition-colors">
-                    <td className="px-5 py-4 font-mono text-gray-400 text-xs">{s.user_id.slice(0, 8)}…</td>
-                    <td className="px-5 py-4 font-mono text-gray-400 text-xs">
-                      {s.assessment_id.slice(0, 8)}…
-                    </td>
-                    <td className="px-5 py-4">
-                      {s.tier_at_time ? <SubscriptionBadge tier={s.tier_at_time} /> : "—"}
-                    </td>
-                    <td className="px-5 py-4 text-gray-500 text-xs">
-                      {new Date(s.started_at).toLocaleDateString("en-GB", {
-                        day: "numeric",
-                        month: "short",
-                        year: "numeric",
-                      })}
-                    </td>
-                    <td className="px-5 py-4">
-                      <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold border ${
-                        s.status === "completed"
-                          ? "bg-green-50 text-green-700 border-green-100"
-                          : "bg-amber-50 text-amber-700 border-amber-100"
-                      }`}>
-                        <span className={`w-1.5 h-1.5 rounded-full ${
-                          s.status === "completed" ? "bg-green-400" : "bg-amber-400"
-                        }`} />
-                        {s.status === "completed" ? "Completed" : "In progress"}
-                      </span>
-                    </td>
+        {isLoading ? (
+          <div className="flex justify-center py-16">
+            <div
+              className="w-8 h-8 border-4 rounded-full animate-spin"
+              style={{ borderColor: "var(--accent)", borderTopColor: "transparent" }}
+            />
+          </div>
+        ) : (
+          <div className="re-card" style={{ overflow: "hidden" }}>
+            <div style={{ overflowX: "auto" }}>
+              <table style={{ width: "100%", fontSize: 13.5, borderCollapse: "collapse" }}>
+                <thead>
+                  <tr style={{ background: "var(--surface-2)", borderBottom: "1px solid var(--border)" }}>
+                    {["User ID", "Assessment ID", "Tier", "Started", "Status"].map((h) => (
+                      <th key={h} className="re-eyebrow" style={{ padding: "12px 20px", textAlign: "left" }}>
+                        {h}
+                      </th>
+                    ))}
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+                </thead>
+                <tbody>
+                  {filtered.length === 0 ? (
+                    <tr>
+                      <td colSpan={5} style={{ padding: "40px 20px", textAlign: "center", fontSize: 13, color: "var(--faint)" }}>
+                        No sessions found.
+                      </td>
+                    </tr>
+                  ) : (
+                    filtered.map((s) => (
+                      <tr
+                        key={s.id}
+                        style={{ borderTop: "1px solid var(--border)", transition: "background .15s var(--ease)" }}
+                        onMouseEnter={(e) => (e.currentTarget.style.background = "var(--surface-2)")}
+                        onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
+                      >
+                        <td style={{ padding: "14px 20px", fontFamily: "var(--font-mono)", fontSize: 12, color: "var(--faint)" }}>
+                          {s.user_id.slice(0, 8)}…
+                        </td>
+                        <td style={{ padding: "14px 20px", fontFamily: "var(--font-mono)", fontSize: 12, color: "var(--faint)" }}>
+                          {s.assessment_id.slice(0, 8)}…
+                        </td>
+                        <td style={{ padding: "14px 20px" }}>
+                          {s.tier_at_time ? <SubscriptionBadge tier={s.tier_at_time} /> : <span style={{ color: "var(--faint)" }}>—</span>}
+                        </td>
+                        <td style={{ padding: "14px 20px", fontSize: 12, color: "var(--muted)" }}>
+                          {new Date(s.started_at).toLocaleDateString("en-GB", {
+                            day: "numeric",
+                            month: "short",
+                            year: "numeric",
+                          })}
+                        </td>
+                        <td style={{ padding: "14px 20px" }}>
+                          <StatusChip status={s.status} />
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
 
-          {/* Pagination */}
-          <div className="px-5 py-3 border-t border-gray-100 flex items-center justify-between">
-            <span className="text-xs text-gray-400">Page {page + 1}</span>
-            <div className="flex gap-2">
-              <button
-                onClick={() => setPage((p) => p - 1)}
-                disabled={!hasPrev}
-                className="flex items-center gap-1 px-3 py-1.5 text-xs font-semibold text-gray-500 border border-gray-200 rounded-lg hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
-              >
-                <ChevronLeft size={13} /> Prev
-              </button>
-              <button
-                onClick={() => setPage((p) => p + 1)}
-                disabled={!hasNext}
-                className="flex items-center gap-1 px-3 py-1.5 text-xs font-semibold text-gray-500 border border-gray-200 rounded-lg hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
-              >
-                Next <ChevronRight size={13} />
-              </button>
+            {/* Pagination */}
+            <div
+              style={{
+                padding: "12px 20px",
+                borderTop: "1px solid var(--border)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+              }}
+            >
+              <span style={{ fontSize: 12, color: "var(--faint)", fontFamily: "var(--font-mono)" }}>Page {page + 1}</span>
+              <div style={{ display: "flex", gap: 8 }}>
+                <button
+                  onClick={() => setPage((p) => p - 1)}
+                  disabled={!hasPrev}
+                  style={{ ...softButton, padding: "6px 12px", fontSize: 12, opacity: hasPrev ? 1 : 0.4, cursor: hasPrev ? "pointer" : "not-allowed" }}
+                >
+                  <ChevronLeft size={13} /> Prev
+                </button>
+                <button
+                  onClick={() => setPage((p) => p + 1)}
+                  disabled={!hasNext}
+                  style={{ ...softButton, padding: "6px 12px", fontSize: 12, opacity: hasNext ? 1 : 0.4, cursor: hasNext ? "pointer" : "not-allowed" }}
+                >
+                  Next <ChevronRight size={13} />
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      )}
-    </div>
+        )}
+      </div>
     </PageWrapper>
   );
 }
