@@ -1,6 +1,6 @@
 import { Outlet, Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
-import logo from "../../assets/logo.svg";
+import logo from "../../assets/RedElkonly.svg";
 
 export default function PublicLayout() {
   const navigate = useNavigate();

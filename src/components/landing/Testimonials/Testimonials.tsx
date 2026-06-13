@@ -1,89 +1,65 @@
-import { motion, useReducedMotion } from "framer-motion";
-import { ClipboardCheck, Cpu, FileBarChart2 } from "lucide-react";
+import { useReveal, revealClass } from "../useReveal";
 
-const steps = [
+// Anonymized to role + sector only — no fabricated personal names.
+const testimonials = [
   {
-    n: "01",
-    icon: ClipboardCheck,
-    title: "Take the Assessment",
-    desc: "Answer questions across each AI dimension at your own pace. Each answer is saved instantly — no losing progress.",
-    iconBg: "bg-elk-red",
-    glow: "rgba(192,57,43,0.2)",
+    quote:
+      "Red Elk gave us a precise diagnosis we could act on immediately. Within two quarters we'd closed the governance gaps that had been holding back our entire AI programme.",
+    role: "Chief Data Officer",
+    org: "Healthcare enterprise",
+    initials: "CD",
+    color: "#3C7A4E",
   },
   {
-    n: "02",
-    icon: Cpu,
-    title: "Get Scored",
-    desc: "Our backend scores your submission across dimensions and calculates your maturity tier automatically.",
-    iconBg: "bg-indigo-600",
-    glow: "rgba(99,102,241,0.2)",
+    quote:
+      "The sector benchmarking was the critical piece. We needed to know whether our AI maturity was genuinely competitive — not just good in isolation. Red Elk answered that clearly.",
+    role: "VP, Technology",
+    org: "Financial services firm",
+    initials: "VP",
+    color: "#3C6E8F",
   },
   {
-    n: "03",
-    icon: FileBarChart2,
-    title: "Download Your Report",
-    desc: "A full PDF report with radar chart, dimension breakdown, and recommended next steps — ready in seconds.",
-    iconBg: "bg-elk-teal",
-    glow: "rgba(13,148,136,0.2)",
+    quote:
+      "The action plan alone was worth the investment. Prioritised initiatives with clear ownership guidance — we briefed the board the same week we got our results.",
+    role: "Chief Strategy Officer",
+    org: "Logistics company",
+    initials: "CS",
+    color: "#BC7A1E",
   },
 ];
 
-export default function HowItWorks() {
-  const prefersReduced = useReducedMotion();
+export default function Testimonials() {
+  const hd = useReveal();
   return (
-    <section className="py-28 bg-elk-canvas dark:bg-gray-900">
-      <div className="max-w-5xl mx-auto px-6">
-        <motion.div
-          initial={prefersReduced ? false : { opacity: 0, y: 24 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: prefersReduced ? 0 : 0.6 }}
-          className="text-center mb-18"
-        >
-          <span className="inline-block text-xs font-bold uppercase tracking-widest text-elk-red bg-red-50 border border-red-100 px-3 py-1 rounded-full mb-4">
-            How It Works
-          </span>
-          <h2 className="text-4xl font-extrabold text-gray-900 dark:text-white mb-5">
-            Three steps to your{" "}
-            <span className="text-elk-red">AI Maturity Report</span>
-          </h2>
-          <p className="text-lg text-gray-500 dark:text-gray-300 max-w-xl mx-auto leading-relaxed">
-            From sign-up to a full scored PDF — the whole process takes under 15 minutes.
-          </p>
-        </motion.div>
-
-        <div className="relative grid grid-cols-1 md:grid-cols-3 gap-6">
-          {/* Connector line on desktop */}
-          <div className="hidden md:block absolute top-14 left-[calc(16.67%+1rem)] right-[calc(16.67%+1rem)] h-px z-0"
-            style={{ background: "linear-gradient(90deg, #C0392B 0%, #6366f1 50%, #0D9488 100%)", opacity: 0.3 }}
-          />
-
-          {steps.map(({ n, icon: Icon, title, desc, iconBg, glow }, i) => (
-            <motion.div
-              key={n}
-              initial={prefersReduced ? false : { opacity: 0, y: 28 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: prefersReduced ? 0 : 0.5, delay: prefersReduced ? 0 : i * 0.15 }}
-              className="relative z-10 bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-sm border border-gray-100 dark:border-gray-700 text-center overflow-hidden"
-            >
-              <div className="relative flex justify-center mb-6">
-                <div
-                  className={`w-14 h-14 rounded-2xl ${iconBg} flex items-center justify-center shadow-lg`}
-                  style={{ boxShadow: `0 8px 24px ${glow}` }}
-                >
-                  <Icon size={24} className="text-white" />
-                </div>
-                <span className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-gray-100 dark:bg-gray-700 border-2 border-white dark:border-gray-800 text-gray-500 dark:text-gray-300 text-xs font-bold flex items-center justify-center">
-                  {n.slice(-1)}
-                </span>
-              </div>
-              <h3 className="text-base font-bold text-gray-900 dark:text-white mb-3">{title}</h3>
-              <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">{desc}</p>
-            </motion.div>
+    <section className="section" id="testimonials">
+      <div className="wrap">
+        <div className={revealClass(hd.visible, "section-hd")} ref={hd.ref}>
+          <span className="eyebrow">What teams say</span>
+          <h2>Trusted by enterprise AI leaders</h2>
+        </div>
+        <div className="testi-grid">
+          {testimonials.map((t, i) => (
+            <Card key={t.role} t={t} delay={i * 0.1} />
           ))}
         </div>
       </div>
     </section>
+  );
+}
+
+function Card({ t, delay }: { t: (typeof testimonials)[number]; delay: number }) {
+  const { ref, visible } = useReveal();
+  return (
+    <div className={revealClass(visible, "testi-card")} ref={ref} style={{ transitionDelay: `${delay}s` }}>
+      <div className="testi-stars">★★★★★</div>
+      <p className="testi-quote">{t.quote}</p>
+      <div className="testi-author">
+        <div className="testi-avatar" style={{ background: t.color }}>{t.initials}</div>
+        <div>
+          <div className="testi-name">{t.role}</div>
+          <div className="testi-role">{t.org}</div>
+        </div>
+      </div>
+    </div>
   );
 }
