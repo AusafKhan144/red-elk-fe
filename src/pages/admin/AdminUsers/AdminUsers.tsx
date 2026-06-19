@@ -16,6 +16,33 @@ type ConfirmModal =
   | { user: AdminUser; type: "role"; newRole: "user" | "admin" }
   | { user: AdminUser; type: "tier"; newTier: SubscriptionTier };
 
+const softButton: React.CSSProperties = {
+  display: "inline-flex",
+  alignItems: "center",
+  gap: 7,
+  padding: "8px 14px",
+  borderRadius: "var(--radius)",
+  background: "var(--surface-inset)",
+  border: "1px solid var(--border)",
+  color: "var(--ink)",
+  fontWeight: 600,
+  fontSize: 13,
+  cursor: "pointer",
+  transition: "all .15s var(--ease)",
+};
+
+const selectStyle: React.CSSProperties = {
+  fontSize: 12,
+  border: "1px solid var(--border-strong)",
+  borderRadius: 8,
+  padding: "5px 8px",
+  background: "var(--surface)",
+  color: "var(--ink)",
+  cursor: "pointer",
+  outline: "none",
+  fontFamily: "var(--font-ui)",
+};
+
 export default function AdminUsers() {
   const { data: users, isLoading } = useAdminUsers();
   const { mutateAsync: updateRole, isPending: updatingRole } = useUpdateUserRole();
@@ -63,159 +90,188 @@ export default function AdminUsers() {
 
   return (
     <PageWrapper>
-    <div className="space-y-6">
-      <div className="flex items-center justify-between gap-4 flex-wrap">
-        <div>
-          <h1
-            className="text-2xl font-extrabold text-gray-900"
-            style={{ fontFamily: "var(--font-display)" }}
-          >
-            Users
-          </h1>
-          <p className="text-sm text-gray-500 mt-0.5">Manage user roles and access levels.</p>
-        </div>
-        <div className="flex items-center gap-3">
-          <button
-            onClick={handleExport}
-            disabled={exporting}
-            className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-gray-600 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 hover:border-gray-300 disabled:opacity-50 transition-all"
-          >
+      <div className="re-fade-in" style={{ display: "flex", flexDirection: "column", gap: 18 }}>
+        {/* Toolbar */}
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-end", gap: 10, flexWrap: "wrap" }}>
+          <button onClick={handleExport} disabled={exporting} style={{ ...softButton, opacity: exporting ? 0.5 : 1 }}>
             <Download size={14} />
             {exporting ? "Exporting…" : "Export CSV"}
           </button>
-          <div className="relative">
-            <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+          <div style={{ position: "relative" }}>
+            <Search
+              size={15}
+              style={{ position: "absolute", left: 11, top: "50%", transform: "translateY(-50%)", color: "var(--faint)" }}
+            />
             <input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search users…"
-              className="pl-9 pr-4 py-2 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-elk-rose w-56"
+              style={{
+                width: 224,
+                padding: "8px 12px 8px 32px",
+                fontSize: 13,
+                background: "var(--surface)",
+                border: "1px solid var(--border)",
+                borderRadius: "var(--radius)",
+                color: "var(--ink)",
+                outline: "none",
+                fontFamily: "var(--font-ui)",
+              }}
             />
           </div>
         </div>
-      </div>
 
-      {isLoading ? (
-        <div className="flex justify-center py-16">
-          <div className="w-8 h-8 border-4 border-elk-red border-t-transparent rounded-full animate-spin" />
-        </div>
-      ) : (
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-          <table className="w-full text-sm">
-            <thead className="bg-gray-50 border-b border-gray-100">
-              <tr>
-                {["Email", "Company", "Tier", "Joined", "Role"].map((h) => (
-                  <th
-                    key={h}
-                    className="px-5 py-3 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider"
-                  >
-                    {h}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-50">
-              {filtered.length === 0 ? (
-                <tr>
-                  <td colSpan={5} className="px-5 py-10 text-center text-sm text-gray-400">
-                    No users found.
-                  </td>
-                </tr>
-              ) : (
-                filtered.map((u) => (
-                  <tr key={u.id} className="hover:bg-gray-50 transition-colors">
-                    <td className="px-5 py-4 text-gray-800 font-medium">
-                      <Link
-                        to={`/admin/users/${u.id}`}
-                        className="hover:text-elk-red transition-colors"
-                      >
-                        {u.email}
-                      </Link>
-                    </td>
-                    <td className="px-5 py-4 text-gray-500">{u.company ?? "—"}</td>
-                    <td className="px-5 py-4">
-                      <div className="flex items-center gap-2">
-                        {u.tier ? <SubscriptionBadge tier={u.tier} /> : <span className="text-gray-400">—</span>}
-                        <select
-                          value={u.tier ?? "free"}
-                          disabled={updating}
-                          onChange={(e) =>
-                            setConfirmModal({
-                              user: u,
-                              type: "tier",
-                              newTier: e.target.value as SubscriptionTier,
-                            })
-                          }
-                          className="text-xs border border-gray-200 rounded-lg px-2 py-1 focus:outline-none focus:ring-2 focus:ring-elk-rose cursor-pointer text-gray-600"
-                        >
-                          <option value="free">Free</option>
-                          <option value="basic">Basic</option>
-                          <option value="premium">Premium</option>
-                        </select>
-                      </div>
-                    </td>
-                    <td className="px-5 py-4 text-gray-400 text-xs">
-                      {new Date(u.created_at).toLocaleDateString()}
-                    </td>
-                    <td className="px-5 py-4">
-                      <select
-                        value={u.role}
-                        disabled={updating}
-                        onChange={(e) =>
-                          setConfirmModal({
-                            user: u,
-                            type: "role",
-                            newRole: e.target.value as "user" | "admin",
-                          })
-                        }
-                        className="text-xs border border-gray-200 rounded-lg px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-elk-rose cursor-pointer"
-                      >
-                        <option value="user">User</option>
-                        <option value="admin">Admin</option>
-                      </select>
-                    </td>
+        {isLoading ? (
+          <div className="flex justify-center py-16">
+            <div
+              className="w-8 h-8 border-4 rounded-full animate-spin"
+              style={{ borderColor: "var(--accent)", borderTopColor: "transparent" }}
+            />
+          </div>
+        ) : (
+          <div className="re-card" style={{ overflow: "hidden" }}>
+            <div style={{ overflowX: "auto" }}>
+              <table style={{ width: "100%", fontSize: 13.5, borderCollapse: "collapse" }}>
+                <thead>
+                  <tr style={{ background: "var(--surface-2)", borderBottom: "1px solid var(--border)" }}>
+                    {["Email", "Company", "Tier", "Joined", "Role"].map((h) => (
+                      <th key={h} className="re-eyebrow" style={{ padding: "12px 20px", textAlign: "left" }}>
+                        {h}
+                      </th>
+                    ))}
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-      )}
-
-      {/* Confirm modal */}
-      {confirmModal && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-          <div className="bg-white rounded-2xl p-8 shadow-2xl max-w-sm w-full mx-4">
-            <h3 className="text-base font-bold text-gray-900 mb-2">
-              Confirm {confirmModal.type === "role" ? "Role" : "Tier"} Change
-            </h3>
-            <p className="text-sm text-gray-500 mb-6">
-              Change <strong>{confirmModal.user.email}</strong> to{" "}
-              <strong>
-                {confirmModal.type === "role" ? confirmModal.newRole : confirmModal.newTier}
-              </strong>
-              ?
-            </p>
-            <div className="flex gap-3 justify-end">
-              <button
-                onClick={() => setConfirmModal(null)}
-                className="px-4 py-2 text-sm text-gray-500 border border-gray-200 rounded-xl hover:bg-gray-50"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={confirmAction}
-                disabled={updating}
-                className="px-4 py-2 text-sm font-semibold text-white rounded-xl disabled:opacity-60 transition-all"
-                style={{ background: "var(--gradient-brand)" }}
-              >
-                {updating ? "Updating…" : "Confirm"}
-              </button>
+                </thead>
+                <tbody>
+                  {filtered.length === 0 ? (
+                    <tr>
+                      <td colSpan={5} style={{ padding: "40px 20px", textAlign: "center", fontSize: 13, color: "var(--faint)" }}>
+                        No users found.
+                      </td>
+                    </tr>
+                  ) : (
+                    filtered.map((u) => (
+                      <tr
+                        key={u.id}
+                        style={{ borderTop: "1px solid var(--border)", transition: "background .15s var(--ease)" }}
+                        onMouseEnter={(e) => (e.currentTarget.style.background = "var(--surface-2)")}
+                        onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
+                      >
+                        <td style={{ padding: "14px 20px", fontWeight: 500 }}>
+                          <Link
+                            to={`/admin/users/${u.id}`}
+                            style={{ color: "var(--ink)", transition: "color .15s var(--ease)" }}
+                            onMouseEnter={(e) => (e.currentTarget.style.color = "var(--accent)")}
+                            onMouseLeave={(e) => (e.currentTarget.style.color = "var(--ink)")}
+                          >
+                            {u.email}
+                          </Link>
+                        </td>
+                        <td style={{ padding: "14px 20px", color: "var(--muted)" }}>{u.company ?? "—"}</td>
+                        <td style={{ padding: "14px 20px" }}>
+                          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                            {u.tier ? <SubscriptionBadge tier={u.tier} /> : <span style={{ color: "var(--faint)" }}>—</span>}
+                            <select
+                              value={u.tier ?? "free"}
+                              disabled={updating}
+                              onChange={(e) =>
+                                setConfirmModal({ user: u, type: "tier", newTier: e.target.value as SubscriptionTier })
+                              }
+                              style={selectStyle}
+                            >
+                              <option value="free">Free</option>
+                              <option value="basic">Basic</option>
+                              <option value="premium">Premium</option>
+                            </select>
+                          </div>
+                        </td>
+                        <td style={{ padding: "14px 20px", fontSize: 12, color: "var(--faint)", fontFamily: "var(--font-mono)" }}>
+                          {new Date(u.created_at).toLocaleDateString()}
+                        </td>
+                        <td style={{ padding: "14px 20px" }}>
+                          <select
+                            value={u.role}
+                            disabled={updating}
+                            onChange={(e) =>
+                              setConfirmModal({ user: u, type: "role", newRole: e.target.value as "user" | "admin" })
+                            }
+                            style={selectStyle}
+                          >
+                            <option value="user">User</option>
+                            <option value="admin">Admin</option>
+                          </select>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
             </div>
           </div>
-        </div>
-      )}
-    </div>
+        )}
+
+        {/* Confirm modal */}
+        {confirmModal && (
+          <div
+            style={{
+              position: "fixed",
+              inset: 0,
+              background: "rgba(33,28,22,.55)",
+              backdropFilter: "blur(4px)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              zIndex: 50,
+            }}
+          >
+            <div className="re-card" style={{ padding: 28, maxWidth: 360, width: "100%", margin: "0 16px" }}>
+              <h3 style={{ fontSize: 16, fontWeight: 700, color: "var(--ink)", marginBottom: 8 }}>
+                Confirm {confirmModal.type === "role" ? "role" : "tier"} change
+              </h3>
+              <p style={{ fontSize: 13.5, color: "var(--muted)", marginBottom: 24, lineHeight: 1.5 }}>
+                Change <strong style={{ color: "var(--ink)" }}>{confirmModal.user.email}</strong> to{" "}
+                <strong style={{ color: "var(--ink)" }}>
+                  {confirmModal.type === "role" ? confirmModal.newRole : confirmModal.newTier}
+                </strong>
+                ?
+              </p>
+              <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
+                <button
+                  onClick={() => setConfirmModal(null)}
+                  style={{
+                    padding: "8px 16px",
+                    fontSize: 13,
+                    fontWeight: 600,
+                    color: "var(--muted)",
+                    background: "var(--surface)",
+                    border: "1px solid var(--border-strong)",
+                    borderRadius: "var(--radius)",
+                    cursor: "pointer",
+                  }}
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={confirmAction}
+                  disabled={updating}
+                  style={{
+                    padding: "8px 16px",
+                    fontSize: 13,
+                    fontWeight: 600,
+                    color: "var(--accent-ink)",
+                    background: "var(--accent)",
+                    border: "none",
+                    borderRadius: "var(--radius)",
+                    cursor: updating ? "not-allowed" : "pointer",
+                    opacity: updating ? 0.6 : 1,
+                  }}
+                >
+                  {updating ? "Updating…" : "Confirm"}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
     </PageWrapper>
   );
 }

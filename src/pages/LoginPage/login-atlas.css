@@ -1,0 +1,150 @@
+/* ============================================================
+   Red Elk — Login (Atlas direction)
+   Ported from design handoff "Login.html". Scoped under .relk-login.
+   ============================================================ */
+
+.relk-login {
+  --dark: #4E1216; --mid: #3D0D11; --ink: #211C16;
+  --muted: #6E6557; --faint: #A39882;
+  --bg: #F2EDE5; --surface: #FFFFFF;
+  --border: #E7DFD2; --accent: #B5232A;
+  --soft: #F6E6E3; --cream: #F7E9E4;
+  --ease: cubic-bezier(.22, .61, .36, 1);
+
+  font-family: 'Schibsted Grotesk', ui-sans-serif, system-ui, sans-serif;
+  background: var(--dark);
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+  display: flex; align-items: center; justify-content: center;
+  min-height: 100vh; padding: 24px;
+  position: relative; overflow: hidden;
+}
+.relk-login *, .relk-login *::before, .relk-login *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ── Background radar pattern ── */
+.relk-login .bg-radar {
+  position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  pointer-events: none; user-select: none; z-index: 0; opacity: 1;
+}
+
+/* ── Gradient overlays ── */
+.relk-login .bg-glow {
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background:
+    radial-gradient(ellipse 60% 55% at 20% 20%, rgba(100,20,28,.55), transparent),
+    radial-gradient(ellipse 50% 60% at 80% 80%, rgba(30,8,10,.7), transparent);
+}
+
+/* ── Card ── */
+.relk-login .card {
+  position: relative; z-index: 1;
+  background: var(--surface);
+  border-radius: 22px;
+  width: 100%; max-width: 420px;
+  padding: 40px 40px 36px;
+  box-shadow: 0 4px 12px rgba(0,0,0,.15), 0 32px 80px rgba(0,0,0,.35), 0 0 0 1px rgba(255,255,255,.06);
+  animation: relkSlideUp .55s var(--ease) both;
+}
+@keyframes relkSlideUp { from { opacity: 0; transform: translateY(22px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .relk-login .card { animation: none; } }
+
+/* ── Brand ── */
+.relk-login .brand { display: flex; align-items: center; gap: 10px; margin-bottom: 28px; }
+.relk-login .brand-tile {
+  width: 38px; height: 38px; border-radius: 10px;
+  background: var(--dark); overflow: hidden; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 2px 6px rgba(0,0,0,.2);
+}
+.relk-login .brand-tile img { width: 38px; height: 38px; object-fit: cover; display: block; }
+.relk-login .brand-name { font-size: 16px; font-weight: 800; color: var(--ink); }
+.relk-login .brand-sub { font-size: 9.5px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--faint); }
+
+/* ── Heading ── */
+.relk-login .card-heading { font-size: 26px; font-weight: 800; letter-spacing: -.02em; margin-bottom: 6px; }
+.relk-login .card-sub { font-size: 14.5px; color: var(--muted); margin-bottom: 28px; line-height: 1.5; }
+
+/* ── Form ── */
+.relk-login .field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
+.relk-login .field-header { display: flex; justify-content: space-between; align-items: center; }
+.relk-login label { font-size: 13px; font-weight: 600; color: var(--ink); }
+.relk-login .forgot { font-size: 12.5px; font-weight: 600; color: var(--accent); text-decoration: none; transition: opacity .15s; background: none; border: none; cursor: pointer; font-family: inherit; }
+.relk-login .forgot:hover { opacity: .75; }
+.relk-login .input-wrap { position: relative; }
+.relk-login input[type="email"],
+.relk-login input[type="password"],
+.relk-login input[type="text"] {
+  width: 100%; height: 46px; padding: 0 14px;
+  font-family: inherit; font-size: 14.5px; font-weight: 500; color: var(--ink);
+  background: var(--bg); border: 1.5px solid var(--border);
+  border-radius: 11px; outline: none;
+  transition: border-color .18s, box-shadow .18s;
+}
+.relk-login input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 14%, transparent); }
+.relk-login input::placeholder { color: var(--faint); font-weight: 400; }
+.relk-login .has-toggle input { padding-right: 44px; }
+.relk-login .pw-toggle {
+  position: absolute; right: 13px; top: 50%; transform: translateY(-50%);
+  background: none; border: none; cursor: pointer; color: var(--faint);
+  padding: 4px; display: flex; align-items: center; justify-content: center;
+  transition: color .15s;
+}
+.relk-login .pw-toggle:hover { color: var(--muted); }
+.relk-login .field-error { font-size: 12px; color: var(--accent); margin-top: 2px; }
+
+/* ── Sign in button ── */
+.relk-login .btn-signin {
+  width: 100%; height: 48px; margin-top: 6px;
+  background: var(--accent); color: #fff;
+  font-family: inherit; font-size: 15px; font-weight: 700;
+  border: none; border-radius: 12px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  transition: all .18s var(--ease);
+  box-shadow: 0 2px 8px rgba(181,35,42,.35);
+}
+.relk-login .btn-signin:hover { background: #9A1C23; transform: translateY(-1px); box-shadow: 0 4px 14px rgba(181,35,42,.4); }
+.relk-login .btn-signin:active { transform: none; }
+.relk-login .btn-signin:disabled { opacity: .7; pointer-events: none; }
+
+/* ── Server / reset banners ── */
+.relk-login .form-error {
+  display: flex; align-items: flex-start; gap: 10px;
+  background: var(--soft); border: 1px solid color-mix(in srgb, var(--accent) 24%, transparent);
+  color: #8E1820; font-size: 13px; border-radius: 11px; padding: 11px 13px; margin-bottom: 16px; line-height: 1.45;
+}
+.relk-login .reset-box { background: var(--bg); border: 1px solid var(--border); border-radius: 14px; padding: 18px; margin-bottom: 18px; }
+.relk-login .reset-box h3 { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+.relk-login .reset-box p { font-size: 13px; color: var(--muted); margin-bottom: 10px; }
+.relk-login .reset-ok { font-size: 13.5px; color: #3C7A4E; font-weight: 600; }
+.relk-login .reset-actions { display: flex; gap: 8px; margin-top: 10px; }
+.relk-login .reset-actions .btn-signin { height: 40px; font-size: 13.5px; margin: 0; flex: 1; }
+.relk-login .btn-cancel {
+  height: 40px; padding: 0 16px; background: var(--surface); color: var(--muted);
+  border: 1.5px solid var(--border); border-radius: 11px; font-family: inherit; font-weight: 600;
+  font-size: 13.5px; cursor: pointer; transition: background .15s;
+}
+.relk-login .btn-cancel:hover { background: var(--bg); }
+
+/* ── Divider ── */
+.relk-login .divider { display: flex; align-items: center; gap: 12px; margin: 22px 0 18px; }
+.relk-login .divider-line { flex: 1; height: 1px; background: var(--border); }
+.relk-login .divider-text { font-size: 12px; color: var(--faint); white-space: nowrap; }
+
+/* ── Signup row ── */
+.relk-login .signup-row { text-align: center; font-size: 14px; color: var(--muted); }
+.relk-login .signup-row button {
+  color: var(--accent); font-weight: 700; background: none; border: none; cursor: pointer;
+  font-family: inherit; font-size: 14px;
+}
+.relk-login .signup-row button:hover { text-decoration: underline; }
+
+/* ── Back link ── */
+.relk-login .back-link {
+  position: fixed; top: 24px; left: 28px; z-index: 10;
+  display: flex; align-items: center; gap: 7px;
+  font-size: 13px; font-weight: 600; color: rgba(247,233,228,.52);
+  transition: color .18s; background: none; border: none; cursor: pointer; font-family: inherit;
+}
+.relk-login .back-link:hover { color: rgba(247,233,228,.85); }
+.relk-login .back-link svg { transition: transform .18s; }
+.relk-login .back-link:hover svg { transform: translateX(-2px); }

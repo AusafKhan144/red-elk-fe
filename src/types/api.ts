@@ -1,7 +1,19 @@
 export type SubscriptionTier = "free" | "basic" | "premium";
 export type MaturityLevel = "nascent" | "developing" | "maturing" | "leading";
-/** Alias kept for backwards compatibility — same as MaturityLevel */
-export type TierResult = MaturityLevel;
+
+export interface RadarPoint {
+  dimension: string;
+  score: number;
+  label: string;
+}
+
+export interface MaturitySummary {
+  overall_score: number;
+  tier_result: MaturityLevel;
+  radar_data: RadarPoint[];
+  as_of_session_id: string;
+  as_of_date: string;
+}
 
 export interface User {
   id: string;
@@ -10,6 +22,7 @@ export interface User {
   company?: string | null;
   tier: SubscriptionTier;
   created_at: string;
+  maturity_summary?: MaturitySummary | null;
 }
 
 export interface UpdateProfilePayload {
@@ -55,6 +68,14 @@ export interface Session {
   assessment_name?: string | null;
   /** Populated in GET /sessions list; null when returned from POST /sessions/start */
   assessment_slug?: string | null;
+  /** Completed sessions only */
+  score?: number | null;
+  /** AI maturity result from the linked report — not the subscription tier */
+  tier_result?: MaturityLevel | null;
+  /** Per-dimension scores for completed sessions */
+  dimension_scores?: RadarPoint[] | null;
+  /** Percentage of questions answered (0–100), in-progress sessions only */
+  progress_pct?: number | null;
 }
 
 export interface AnswerOut {
@@ -63,27 +84,16 @@ export interface AnswerOut {
   answer_value: number;
 }
 
-export interface RadarPoint {
-  dimension: string;
-  score: number;
-  label: string;
-}
-
-/** Frontend-derived type: combines radar_data entry with its recommendation */
-export interface DimensionResult {
-  name: string;
-  score: number;
-  description: string;
-}
-
 export interface Report {
   id: string;
   session_id: string;
   scores: Record<string, number>;
   overall_score: number;
-  tier_result: TierResult;
+  tier_result: MaturityLevel;
   recommendations: Record<string, string>;
   radar_data: RadarPoint[];
+  /** Radar data from the user's previous completed session; null on first attempt */
+  previous_radar_data?: RadarPoint[] | null;
   pdf_url: string | null;
   generated_at: string;
 }

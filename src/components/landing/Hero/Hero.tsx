@@ -1,202 +1,145 @@
-import { motion, useReducedMotion } from "framer-motion";
-import { useNavigate } from "react-router-dom";
-import { ArrowRight, CheckCircle, Sparkles, FileText } from "lucide-react";
+import { useEffect, useRef } from "react";
+import { Link } from "react-router-dom";
 
-const badges = ["500+ Assessments Completed", "Enterprise Ready", "AI-Powered Scoring"];
+const NS = "http://www.w3.org/2000/svg";
 
-const dimensionData = [
-  { label: "Strategy",   score: 82 },
-  { label: "Data",       score: 74 },
-  { label: "Technology", score: 79 },
-  { label: "Talent",     score: 71 },
-  { label: "Governance", score: 68 },
+/** Animated hero radar — ported from the design's vanilla-JS rAF build. */
+function HeroRadar() {
+  const svgRef = useRef<SVGSVGElement>(null);
+
+  useEffect(() => {
+    const svg = svgRef.current;
+    if (!svg) return;
+    svg.innerHTML = "";
+
+    const cx = 190, cy = 190, R = 148;
+    const dims = [
+      { l: "Strategy", s: 82 }, { l: "Data", s: 71 }, { l: "Tech", s: 79 },
+      { l: "Talent", s: 64 }, { l: "Governance", s: 58 }, { l: "Adoption", s: 73 },
+    ];
+    const n = dims.length;
+    const ang = (i: number) => (Math.PI * 2 * i) / n - Math.PI / 2;
+    const pt = (i: number, r: number): [number, number] =>
+      [cx + Math.cos(ang(i)) * R * r, cy + Math.sin(ang(i)) * R * r];
+    const mk = (tag: string, a: Record<string, string | number>) => {
+      const e = document.createElementNS(NS, tag);
+      Object.entries(a).forEach(([k, v]) => e.setAttribute(k, String(v)));
+      return e;
+    };
+
+    // grid
+    [0.25, 0.5, 0.75, 1].forEach((r, ri) => {
+      svg.appendChild(mk("polygon", {
+        points: dims.map((_, i) => pt(i, r).join(",")).join(" "),
+        fill: ri === 3 ? "rgba(255,255,255,.035)" : "none",
+        stroke: "rgba(255,255,255,.1)", "stroke-width": "1",
+      }));
+    });
+    // spokes
+    dims.forEach((_, i) => {
+      const [x, y] = pt(i, 1);
+      svg.appendChild(mk("line", { x1: cx, y1: cy, x2: x, y2: y, stroke: "rgba(255,255,255,.1)", "stroke-width": "1" }));
+    });
+    // ring value labels
+    [25, 50, 75].forEach((v) => {
+      const t = mk("text", {
+        x: cx + 3, y: cy - R * (v / 100) - 3, "text-anchor": "start",
+        fill: "rgba(247,233,228,.22)", "font-size": "8.5", "font-family": "'JetBrains Mono',monospace",
+      });
+      t.textContent = String(v);
+      svg.appendChild(t);
+    });
+    // dim labels
+    dims.forEach((d, i) => {
+      const [x, y] = pt(i, 1.22);
+      const t = mk("text", {
+        x, y, "text-anchor": "middle", "dominant-baseline": "middle",
+        fill: "rgba(247,233,228,.55)", "font-size": "11.5", "font-weight": "700",
+        "font-family": "'Schibsted Grotesk',sans-serif",
+      });
+      t.textContent = d.l;
+      svg.appendChild(t);
+    });
+    // fill + stroke + dots
+    const fill = mk("polygon", { fill: "rgba(247,233,228,.13)" });
+    const stroke = mk("polygon", { fill: "none", stroke: "rgba(247,233,228,.88)", "stroke-width": "2.5", "stroke-linejoin": "round" });
+    svg.appendChild(fill); svg.appendChild(stroke);
+    const dots = dims.map(() => {
+      const c = mk("circle", { r: "4.5", fill: "rgba(247,233,228,.88)" });
+      svg.appendChild(c);
+      return c;
+    });
+
+    const setPoints = (g: number) => {
+      const pts = dims.map((d, i) => pt(i, (d.s / 100) * g).join(",")).join(" ");
+      fill.setAttribute("points", pts);
+      stroke.setAttribute("points", pts);
+      dots.forEach((dot, i) => {
+        const [x, y] = pt(i, (dims[i].s / 100) * g);
+        dot.setAttribute("cx", String(x));
+        dot.setAttribute("cy", String(y));
+      });
+    };
+
+    const reduce = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+    if (reduce) { setPoints(1); return; }
+
+    const ease = (t: number) => 1 - Math.pow(1 - t, 3);
+    const start = performance.now(), dur = 1500;
+    let raf = 0;
+    const frame = (now: number) => {
+      const g = ease(Math.min((now - start) / dur, 1));
+      setPoints(g);
+      if (g < 1) raf = requestAnimationFrame(frame);
+    };
+    raf = requestAnimationFrame(frame);
+    return () => cancelAnimationFrame(raf);
+  }, []);
+
+  return <svg ref={svgRef} width="380" height="380" viewBox="0 0 380 380" style={{ overflow: "visible" }} />;
+}
+
+const stats = [
+  { val: "6 dimensions", lbl: "Capability framework" },
+  { val: "Sector peers", lbl: "Benchmark comparison" },
+  { val: "Tiered roadmap", lbl: "Prioritised next steps" },
 ];
 
-const tierGradients: Record<string, string> = {
-  Strategy:   "#C0392B",
-  Data:       "#D4A72C",
-  Technology: "#0D9488",
-  Talent:     "#7C3AED",
-  Governance: "#da8f93",
-};
-
 export default function Hero() {
-  const navigate = useNavigate();
-  const prefersReduced = useReducedMotion();
-
   return (
-    <section className="grain relative overflow-hidden bg-elk-maroon min-h-[90vh] flex items-center">
-      {/* Background radial glows */}
-      <div className="absolute inset-0 pointer-events-none">
-        <motion.div
-          className="absolute -top-40 -right-40 w-[700px] h-[700px] rounded-full"
-          style={{ background: "radial-gradient(circle, rgba(192,57,43,0.3) 0%, transparent 70%)" }}
-          animate={prefersReduced ? { scale: 1, opacity: 0.7 } : { scale: [1, 1.1, 1], opacity: [0.6, 0.85, 0.6] }}
-          transition={prefersReduced ? { duration: 0 } : { duration: 10, repeat: Infinity, ease: "easeInOut" }}
-        />
-        <motion.div
-          className="absolute -bottom-60 -left-40 w-[600px] h-[600px] rounded-full"
-          style={{ background: "radial-gradient(circle, rgba(212,167,44,0.1) 0%, transparent 70%)" }}
-          animate={prefersReduced ? { scale: 1 } : { scale: [1, 1.15, 1] }}
-          transition={prefersReduced ? { duration: 0 } : { duration: 14, repeat: Infinity, ease: "easeInOut", delay: 3 }}
-        />
-        {/* Grid overlay */}
-        <div
-          className="absolute inset-0 opacity-[0.04]"
-          style={{
-            backgroundImage:
-              "linear-gradient(rgba(255,255,255,0.4) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.4) 1px, transparent 1px)",
-            backgroundSize: "48px 48px",
-          }}
-        />
-      </div>
-
-      <div className="relative max-w-7xl mx-auto px-6 py-24 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center w-full">
-        {/* ── Left copy ── */}
-        <motion.div
-          initial={prefersReduced ? false : { opacity: 0, y: 32 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: prefersReduced ? 0 : 0.7, ease: "easeOut" }}
-        >
-          <div className="inline-flex items-center gap-2 bg-white/8 border border-white/15 rounded-full px-4 py-1.5 mb-7">
-            <Sparkles size={13} className="text-elk-rose" />
-            <span className="text-elk-rose text-xs font-semibold tracking-wide">
-              AI Maturity Assessment Platform
-            </span>
-          </div>
-
-          <h1 className="text-5xl lg:text-6xl font-extrabold text-white leading-[1.05] tracking-tight mb-6">
-            AI Maturity,{" "}
-            <span
-              style={{
-                fontFamily: "var(--font-display)",
-                fontWeight: 700,
-                color: "#D4A72C",
-                textShadow: "0 0 40px rgba(212,167,44,0.35)",
-              }}
-            >
-              Measured.
-            </span>
-          </h1>
-
-          <p className="text-lg text-white/65 leading-relaxed mb-9 max-w-lg">
-            Benchmark your organisation&apos;s AI capabilities across every dimension.
-            Get a scored report, radar chart, and a PDF roadmap in minutes.
+    <section className="hero" id="hero">
+      <div className="wrap hero-inner">
+        <div>
+          <p className="hero-eyebrow">AI Maturity Platform</p>
+          <h1>Know exactly where your AI stands.</h1>
+          <p className="hero-sub">
+            The diagnostic platform that benchmarks six AI capability dimensions, compares you
+            against sector peers, and builds a prioritised roadmap to the next maturity tier.
           </p>
-
-          <div className="flex flex-wrap gap-4 mb-10">
-            {badges.map((b) => (
-              <div key={b} className="flex items-center gap-1.5 text-white/55 text-sm">
-                <CheckCircle size={14} className="text-elk-rose shrink-0" />
-                {b}
+          <div className="hero-ctas">
+            <Link to="/login?mode=register" className="btn btn-cream" style={{ fontSize: "15px", padding: "13px 26px" }}>
+              Get started free
+            </Link>
+            <a
+              href="#how"
+              className="btn btn-ghost-light"
+              onClick={(e) => { e.preventDefault(); document.getElementById("how")?.scrollIntoView({ behavior: "smooth" }); }}
+            >
+              See how it works →
+            </a>
+          </div>
+          <div className="hero-stats">
+            {stats.map((s) => (
+              <div className="hero-stat" key={s.lbl}>
+                <div className="hero-stat-val">{s.val}</div>
+                <div className="hero-stat-lbl">{s.lbl}</div>
               </div>
             ))}
           </div>
-
-          <div className="flex flex-wrap gap-4">
-            <button
-              onClick={() => navigate("/login?mode=register")}
-              className="flex items-center gap-2 px-7 py-3.5 text-white font-bold rounded-xl transition-all shadow-lg shadow-black/30 hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0"
-              style={{ background: "var(--gradient-brand)" }}
-            >
-              Get Started Free <ArrowRight size={17} />
-            </button>
-            <button
-              onClick={() => document.getElementById("features")?.scrollIntoView({ behavior: "smooth" })}
-              className="flex items-center gap-2 px-7 py-3.5 bg-white/8 hover:bg-white/14 border border-white/20 hover:border-white/35 text-white/90 font-semibold rounded-xl transition-all"
-            >
-              Learn More
-            </button>
-          </div>
-        </motion.div>
-
-        {/* ── Score card mockup ── */}
-        <motion.div
-          initial={prefersReduced ? false : { opacity: 0, x: 48, y: 16 }}
-          animate={{ opacity: 1, x: 0, y: 0 }}
-          transition={{ duration: prefersReduced ? 0 : 0.8, delay: prefersReduced ? 0 : 0.25, ease: "easeOut" }}
-          className="hidden lg:block"
-        >
-          <div className="relative max-w-sm ml-auto">
-            {/* Main card */}
-            <div className="glass-card relative">
-              {/* Card header */}
-              <div className="flex items-center justify-between mb-5">
-                <div>
-                  <p className="text-white/50 text-xs font-medium mb-0.5">AI Maturity Score</p>
-                  <p className="text-white/25 text-xs">Enterprise · 2026</p>
-                </div>
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-yellow-500/15 text-yellow-300 border border-yellow-500/20">
-                  <span className="w-1.5 h-1.5 rounded-full bg-elk-gold" />
-                  Leading
-                </span>
-              </div>
-
-              {/* Score */}
-              <div className="flex items-end gap-3 mb-5">
-                <span
-                  className="text-6xl font-extrabold text-white leading-none"
-                  style={{ fontFamily: "var(--font-display)" }}
-                >
-                  78
-                </span>
-                <div className="mb-2 flex-1">
-                  <div className="w-full bg-white/10 rounded-full h-2 mb-1">
-                    <motion.div
-                      className="h-2 rounded-full"
-                      style={{ background: "linear-gradient(90deg, #C0392B, #D4A72C)" }}
-                      initial={prefersReduced ? { width: "78%" } : { width: 0 }}
-                      animate={{ width: "78%" }}
-                      transition={{ duration: prefersReduced ? 0 : 1.2, delay: prefersReduced ? 0 : 0.6, ease: "easeOut" }}
-                    />
-                  </div>
-                  <p className="text-white/30 text-xs">out of 100</p>
-                </div>
-              </div>
-
-              {/* Dimension bars */}
-              <div className="space-y-2">
-                {dimensionData.map(({ label, score }) => (
-                  <div key={label} className="flex items-center gap-3">
-                    <span className="text-white/45 text-xs w-20 shrink-0">{label}</span>
-                    <div className="flex-1 bg-white/8 rounded-full h-1.5">
-                      <motion.div
-                        className="h-1.5 rounded-full"
-                        style={{ background: tierGradients[label] ?? "#C0392B" }}
-                        initial={prefersReduced ? { width: `${score}%` } : { width: 0 }}
-                        animate={{ width: `${score}%` }}
-                        transition={{ duration: prefersReduced ? 0 : 1, delay: prefersReduced ? 0 : 0.8, ease: "easeOut" }}
-                      />
-                    </div>
-                    <span className="text-white/35 text-xs w-5 text-right">{score}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Floating "Report Ready" mini-card */}
-            <motion.div
-              initial={prefersReduced ? false : { opacity: 0, y: 8, x: 8 }}
-              animate={{ opacity: 1, y: 0, x: 0 }}
-              transition={{ duration: prefersReduced ? 0 : 0.5, delay: prefersReduced ? 0 : 1.2, ease: "easeOut" }}
-              className="absolute -bottom-5 -right-5 bg-white rounded-2xl shadow-2xl px-4 py-3 flex items-center gap-3"
-            >
-              <div className="w-8 h-8 rounded-xl bg-teal-50 flex items-center justify-center shrink-0">
-                <FileText size={15} className="text-teal-600" />
-              </div>
-              <div>
-                <p className="text-gray-900 text-xs font-bold leading-none mb-0.5">Report Ready</p>
-                <p className="text-gray-400 text-xs">PDF generated</p>
-              </div>
-            </motion.div>
-
-            {/* Glow under card */}
-            <div
-              className="absolute -bottom-8 left-1/2 -translate-x-1/2 w-48 h-8 blur-2xl rounded-full opacity-50"
-              style={{ background: "linear-gradient(90deg, #C0392B, #D4A72C)" }}
-            />
-          </div>
-        </motion.div>
+        </div>
+        <div className="hero-visual">
+          <HeroRadar />
+        </div>
       </div>
     </section>
   );

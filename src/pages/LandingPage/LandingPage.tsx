@@ -1,17 +1,28 @@
+import "./landing.css";
+import LandingNav from "../../components/landing/LandingNav";
 import Hero from "../../components/landing/Hero/Hero";
+import TrustBar from "../../components/landing/TrustBar";
+import HowItWorks from "../../components/landing/HowItWorks";
 import Features from "../../components/landing/Features/Features";
-import HowItWorks from "../../components/landing/Testimonials/Testimonials";
+import Benchmarks from "../../components/landing/Benchmarks";
+import Testimonials from "../../components/landing/Testimonials/Testimonials";
+import Pricing from "../../components/landing/Pricing";
 import CTA from "../../components/landing/CTA/CTA";
-import Footer from "../../components/common/Footer/Footer";
+import LandingFooter from "../../components/landing/LandingFooter";
 
 export default function LandingPage() {
   return (
-    <div className="flex flex-col">
+    <div className="relk-landing">
+      <LandingNav />
       <Hero />
-      <Features />
+      <TrustBar />
       <HowItWorks />
+      <Features />
+      <Benchmarks />
+      <Testimonials />
+      <Pricing />
       <CTA />
-      <Footer />
+      <LandingFooter />
     </div>
   );
 }
